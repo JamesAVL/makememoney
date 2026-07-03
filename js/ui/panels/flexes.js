@@ -3,8 +3,10 @@
 
 import { ACHIEVEMENTS } from '../../data/achievements.js';
 import { fmtDur } from '../fmt.js';
+import { shareText } from '../../native/device.js';
 
 let els = {};
+let hofData = [];
 
 export function mount(root, state) {
   root.innerHTML = `
@@ -24,6 +26,13 @@ export function mount(root, state) {
     grid: root.querySelector('#fx-grid'),
     hof: root.querySelector('#fx-hof'),
   };
+  // Delegated so it survives innerHTML rebuilds.
+  els.hof.addEventListener('click', (e) => {
+    const btn = e.target.closest('.hof-share');
+    if (!btn) return;
+    const h = hofData[Number(btn.dataset.i)];
+    if (h) shareText(`My ad "${h.title}" went MEGA-VIRAL (${h.views}) in Ship Happens 🌋 Sell everything. Learn nothing.`);
+  });
 }
 
 let lastKey = '';
@@ -51,9 +60,10 @@ export function update(state) {
   els.grid.innerHTML = grid;
 
   let hof = '';
-  for (const h of [...state.acct.hallOfFame].reverse()) {
-    hof += `<tr><td>🌋 “${h.title}”</td><td>${h.views}</td></tr>`;
-  }
+  hofData = [...state.acct.hallOfFame].reverse();
+  hofData.forEach((h, i) => {
+    hof += `<tr><td>🌋 “${h.title}”</td><td>${h.views} <button class="icon-btn hof-share" data-i="${i}" title="Share this flex">📣</button></td></tr>`;
+  });
   if (!hof) hof = '<tr><td class="muted">No MEGA-VIRALs yet. The 1% awaits.</td><td></td></tr>';
   els.hof.innerHTML = hof;
 }

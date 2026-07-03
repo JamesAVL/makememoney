@@ -28,11 +28,17 @@ function ensure() {
 export function unlockAudio(settings) {
   muted = settings.muted;
   volume = settings.volume;
+  // Persistent (not once): iOS standalone suspends the context on every
+  // backgrounding and doesn't reliably auto-resume. ensure() early-returns,
+  // so this is a no-op branch per interaction.
   const handler = () => {
-    if (ensure() && ctx.state === 'suspended') ctx.resume();
+    if (ensure() && ctx.state === 'suspended') ctx.resume().catch(() => {});
   };
-  window.addEventListener('pointerdown', handler, { once: true });
-  window.addEventListener('keydown', handler, { once: true });
+  window.addEventListener('pointerdown', handler);
+  window.addEventListener('keydown', handler);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+  });
 }
 
 export function setVolume(v) {

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#161c28"/>
+      <stop offset="1" stop-color="#0a0d13"/>
+    </linearGradient>
+    <linearGradient id="boxTop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e8b984"/>
+      <stop offset="1" stop-color="#c98d4b"/>
+    </linearGradient>
+    <linearGradient id="boxFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c98d4b"/>
+      <stop offset="1" stop-color="#8a5a26"/>
+    </linearGradient>
+    <linearGradient id="arrow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#17914f"/>
+      <stop offset="1" stop-color="#3ae68f"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.62">
+      <stop offset="0" stop-color="#22d67c" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#22d67c" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <rect width="512" height="512" fill="url(#glow)"/>
+
+  <!-- cardboard box (isometric-ish) -->
+  <g>
+    <path d="M116 236 L256 180 L396 236 L396 388 L256 444 L116 388 Z" fill="url(#boxFront)"/>
+    <path d="M116 236 L256 180 L396 236 L256 292 Z" fill="url(#boxTop)"/>
+    <path d="M116 236 L256 292 L256 444 L116 388 Z" fill="#a4703a"/>
+    <!-- tape -->
+    <path d="M243 185 L269 185 L269 297 L243 297 Z" transform="skewX(0)" fill="#f2e4c9" opacity="0.9"/>
+    <path d="M243 297 L269 297 L269 449 L243 449 Z" fill="#e5d3b3" opacity="0.75"/>
+    <!-- box shading -->
+    <path d="M116 236 L256 292 L396 236 L396 246 L256 302 L116 246 Z" fill="#000" opacity="0.18"/>
+  </g>
+
+  <!-- stonks arrow punching up out of the box -->
+  <g>
+    <path d="M150 330 L212 268 L252 300 L340 204" fill="none" stroke="url(#arrow)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M268 176 L368 176 L368 276 Z" fill="#3ae68f" transform="rotate(45 318 226)"/>
+  </g>
+</svg>

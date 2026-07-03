@@ -1,5 +1,11 @@
 // Bootstrap: load save → offline reveal → mount panels → start loop.
 
+// pwa.js first: its top-level beforeinstallprompt listener must be armed
+// before the browser fires the event.
+import { initServiceWorker, isStandalone, canInstall, promptInstall } from './native/pwa.js';
+import {
+  hardenGestures, initHaptics, setHapticsEnabled, setWakeLock, requestPersistence,
+} from './native/device.js';
 import { createInitialState } from './core/state.js';
 import { loadFromStorage, saveToStorage, computeOffline, applyOffline, onSessionStart } from './core/save.js';
 import { startLoop } from './core/loop.js';
@@ -72,6 +78,34 @@ function boot() {
   initParticles();
   initRipples();
 
+  // --- Native shell ---
+  const standalone = isStandalone();
+  document.documentElement.classList.toggle('standalone', standalone);
+  hardenGestures(standalone);
+  initServiceWorker();
+  initHaptics(bus);
+  setHapticsEnabled(state.settings.haptics !== false);
+  if (state.settings.wakeLock) setWakeLock(true);
+  if (standalone) {
+    // Installed app: silently pin storage on the first gesture (no prompt UIs
+    // in standalone Chromium/Safari; Firefox never installs PWAs).
+    window.addEventListener('pointerdown', () => { requestPersistence(); }, { once: true });
+  }
+  document.addEventListener('sh:installable', () => {
+    if (state.acct.level >= 3 && !state.ftue.tips.install) {
+      state.ftue.tips.install = true;
+      toast({
+        icon: '📲', name: 'HustleOS wants your home screen',
+        sub: 'Settings → Install. Zero cloud. Zero telemetry. Pure grind.',
+        ms: 9000, onClick: () => promptInstall(),
+      });
+    }
+  });
+  document.addEventListener('sh:installed', () => {
+    requestPersistence();
+    toast({ icon: '📲', name: 'Installed.', sub: 'You are now vertically integrated.', tone: 'gold' });
+  });
+
   // --- Offline progress (computed before schedulers re-arm) ---
   let offlineReport = null;
   if (loaded && awayMs > 5 * 60 * 1000) {
@@ -118,6 +152,27 @@ function boot() {
     tickersFrame(frameNow);
     particlesFrame(frameNow);
   };
+
+  // --- PWA shortcut deep links (?tab=): stamp lock state before switching ---
+  const wantTab = new URLSearchParams(location.search).get('tab');
+  if (wantTab) {
+    nav.update(state);
+    nav.switchTab(wantTab);
+  }
+
+  // --- iOS standalone keeps a separate save from the Safari tab ---
+  if (isFresh && standalone && !offlineReport) {
+    showModal({
+      title: 'Fresh install detected',
+      body: '<div class="muted">The installed app keeps its own save, separate from the browser. '
+        + 'Had an empire in the browser tab? Open it there → Settings → 📤 Export save, '
+        + 'then come back and 📥 Import here. Otherwise: enjoy the void.</div>',
+      actions: [
+        { label: 'Start fresh' },
+        { label: 'Go to Import', class: 'btn-ghost', onClick: () => nav.switchTab('settings') },
+      ],
+    });
+  }
 
   // --- Keyboard shortcuts ---
   document.addEventListener('keydown', (e) => {

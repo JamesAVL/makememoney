@@ -9,6 +9,11 @@ import { setShakeEnabled } from '../components/celebrate.js';
 import { showModal } from '../components/modal.js';
 import { applyTheme } from '../theme.js';
 import { toast } from '../components/toast.js';
+import {
+  hapticsSupported, setHapticsEnabled, wakeLockSupported, setWakeLock,
+  fullscreenSupported, toggleFullscreen, storageStatus, requestPersistence,
+} from '../../native/device.js';
+import { canInstall, promptInstall, isStandalone, isIOS } from '../../native/pwa.js';
 
 let state_ = null;
 let statsEl = null;
@@ -37,11 +42,21 @@ export function mount(root, state) {
           <span>🔢 Scientific notation</span><input type="checkbox" id="s-sci">
         </label>
         <label style="display:flex;justify-content:space-between;align-items:center">
-          <span>✨ Particles</span><input type="checkbox" id="s-part">
+          <span>✨ Particles &amp; ambient FX</span><input type="checkbox" id="s-part">
         </label>
         <label style="display:flex;justify-content:space-between;align-items:center">
           <span>📳 Screen shake</span><input type="checkbox" id="s-shake">
         </label>
+        <label style="display:flex;justify-content:space-between;align-items:center" id="s-haptics-row">
+          <span>🫨 Haptics</span><input type="checkbox" id="s-haptics">
+        </label>
+        <label style="display:flex;justify-content:space-between;align-items:center" id="s-wake-row">
+          <span>☕ Keep screen awake <span class="muted">(“Grind Mode”)</span></span><input type="checkbox" id="s-wake">
+        </label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn hidden" id="s-fullscreen">⛶ Fullscreen</button>
+          <button class="btn hidden" id="s-install">📲 Install HustleOS</button>
+        </div>
       </div>
     </div>
 
@@ -56,6 +71,10 @@ export function mount(root, state) {
       <div class="muted" style="font-size:11px;margin-top:6px">
         Saves live in this browser's localStorage. Export before switching devices —
         browsers sometimes evict storage after long absences.
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11.5px">
+        <span id="s-storage" class="muted"></span>
+        <button class="btn btn-ghost hidden" id="s-pin" style="min-height:28px;padding:3px 10px;font-size:11.5px">🛡 Pin my save</button>
       </div>
     </div>
 
@@ -124,6 +143,83 @@ export function mount(root, state) {
   shake.addEventListener('change', () => {
     state_.settings.shake = shake.checked;
     setShakeEnabled(shake.checked);
+  });
+
+  // --- Native rows (feature-detected) ---
+  const hapticsRow = root.querySelector('#s-haptics-row');
+  const haptics = root.querySelector('#s-haptics');
+  if (hapticsSupported()) {
+    haptics.checked = state.settings.haptics !== false;
+    haptics.addEventListener('change', () => {
+      state_.settings.haptics = haptics.checked;
+      setHapticsEnabled(haptics.checked);
+      if (haptics.checked) navigator.vibrate?.(15);
+    });
+  } else {
+    hapticsRow.classList.add('hidden');
+  }
+
+  const wakeRow = root.querySelector('#s-wake-row');
+  const wake = root.querySelector('#s-wake');
+  if (wakeLockSupported()) {
+    wake.checked = !!state.settings.wakeLock;
+    wake.addEventListener('change', () => {
+      state_.settings.wakeLock = wake.checked;
+      setWakeLock(wake.checked);
+    });
+  } else {
+    wakeRow.classList.add('hidden');
+  }
+
+  const fs = root.querySelector('#s-fullscreen');
+  if (fullscreenSupported() && !isStandalone()) {
+    fs.classList.remove('hidden');
+    fs.addEventListener('click', toggleFullscreen);
+    document.addEventListener('fullscreenchange', () => {
+      fs.textContent = document.fullscreenElement ? '⛶ Exit fullscreen' : '⛶ Fullscreen';
+    });
+  }
+
+  const install = root.querySelector('#s-install');
+  const refreshInstall = () => {
+    install.classList.toggle('hidden', isStandalone() || (!canInstall() && !isIOS()));
+  };
+  refreshInstall();
+  document.addEventListener('sh:installable', refreshInstall);
+  document.addEventListener('sh:installed', refreshInstall);
+  install.addEventListener('click', async () => {
+    if (canInstall()) {
+      await promptInstall();
+    } else if (isIOS()) {
+      showModal({
+        title: 'Install on iPhone/iPad',
+        body: '<div class="muted">In Safari: tap <b>Share</b> ▸ <b>Add to Home Screen</b>.<br><br>'
+          + '⚠️ The installed app keeps its <b>own save</b>. 📤 Export here first, then 📥 Import inside the app. '
+          + 'Silver lining: the installed app is exempt from Safari’s storage eviction — installing IS the save-durability upgrade.</div>',
+        actions: [{ label: 'Got it' }],
+      });
+    }
+  });
+
+  const storageEl = root.querySelector('#s-storage');
+  const pin = root.querySelector('#s-pin');
+  storageStatus().then((persisted) => {
+    if (persisted === null) return;
+    if (persisted) {
+      storageEl.textContent = '🛡 Storage: PERSISTENT — the browser pinky-promised not to evict your empire.';
+    } else {
+      storageEl.textContent = 'Storage: best-effort — export regularly, or:';
+      pin.classList.remove('hidden');
+      pin.addEventListener('click', async () => {
+        const ok = await requestPersistence();
+        if (ok) {
+          storageEl.textContent = '🛡 Storage: PERSISTENT — empire pinned.';
+          pin.classList.add('hidden');
+        } else {
+          toast({ icon: '🤝', name: 'Not yet', sub: 'The browser wants more “engagement” first. Keep grinding (or install the app).' });
+        }
+      });
+    }
   });
 
   const io = root.querySelector('#s-io');

@@ -157,3 +157,36 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; }
 .hype-c { color: var(--hype); }
 .data-c { color: var(--data); }
 .danger-c { color: var(--danger); }
+
+/* ============ native-shell hardening ============ */
+html {
+  touch-action: manipulation;            /* kills double-tap-to-zoom app-wide, keeps scrolling */
+  -webkit-text-size-adjust: 100%;        /* no iOS landscape font inflation */
+  overscroll-behavior: none;             /* no pull-to-refresh, no rubber-band chaining */
+}
+body {
+  overscroll-behavior: none;
+  -webkit-touch-callout: none;           /* no iOS long-press callout sheet */
+  -webkit-user-select: none;
+  user-select: none;                     /* game chrome is not prose */
+}
+/* Save import/export must stay selectable + pasteable (load-bearing on iOS:
+   WebKit blocks selection under user-select:none ancestors unless re-enabled). */
+input, textarea {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+button, .card, .nav-btn { -webkit-user-drag: none; }
+
+/* iOS standalone: dark scrim under the translucent status bar so white
+   status text stays readable over the light theme. env()=0 elsewhere. */
+html.standalone body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: env(safe-area-inset-top, 0px);
+  background: rgba(5, 7, 11, 0.55);
+  z-index: 900;
+  pointer-events: none;
+}

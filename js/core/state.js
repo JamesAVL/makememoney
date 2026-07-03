@@ -92,6 +92,7 @@ export function createInitialState(now) {
     settings: {
       volume: 0.5, muted: false, notation: 'short',
       particles: true, shake: true, theme: 'dark',
+      haptics: true, wakeLock: false,
     },
     history: [],               // [simMs, cps] samples, 1 per 2s, capped 450
   };

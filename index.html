@@ -2,10 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Ship Happens — Sell everything. Learn nothing.</title>
   <meta name="description" content="A satirical dropshipping idle game. Build the store, spin the ads, ride the algorithm, sell the company. Repeat.">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>📦</text></svg>">
+  <meta name="theme-color" content="#0b0e14">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ship Happens">
+  <meta name="format-detection" content="telephone=no">
+  <script>
+    // Self-heal: a mixed-deploy module graph (stale-while-revalidate hazard)
+    // can break boot with a TypeError. One shot per session: drop SW caches
+    // (never localStorage saves) and reload clean.
+    window.addEventListener('error', function () {
+      if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+      if (sessionStorage.getItem('sh-selfheal')) return;
+      sessionStorage.setItem('sh-selfheal', '1');
+      navigator.serviceWorker.getRegistrations().then(function (rs) {
+        return Promise.all(rs.map(function (r) { return r.unregister(); }));
+      }).then(function () { return caches.keys(); })
+        .then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); })
+        .then(function () { location.reload(); });
+    }, { once: true });
+  </script>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">

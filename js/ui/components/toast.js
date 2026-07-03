@@ -1,17 +1,18 @@
 // Achievement/unlock toasts: queued, max 3 visible, auto-dismiss.
+// Options: ms (visible duration), onClick (tap action; also dismisses).
 
 const queue = [];
 let visible = 0;
 const MAX_VISIBLE = 3;
 
-export function toast({ icon = '🏆', name, sub = '', tone = '' }) {
-  queue.push({ icon, name, sub, tone });
+export function toast({ icon = '🏆', name, sub = '', tone = '', ms = 4000, onClick = null }) {
+  queue.push({ icon, name, sub, tone, ms, onClick });
   drain();
 }
 
 function drain() {
   if (visible >= MAX_VISIBLE || !queue.length) return;
-  const { icon, name, sub, tone } = queue.shift();
+  const { icon, name, sub, tone, ms, onClick } = queue.shift();
   const root = document.getElementById('toasts');
   const el = document.createElement('div');
   el.className = `toast ${tone}`;
@@ -22,12 +23,25 @@ function drain() {
   el.querySelector('.t-sub').textContent = sub;
   root.appendChild(el);
   visible++;
-  setTimeout(() => {
+
+  let removed = false;
+  const remove = () => {
+    if (removed) return;
+    removed = true;
     el.classList.add('out');
     setTimeout(() => {
       el.remove();
       visible--;
       drain();
     }, 260);
-  }, 4000);
+  };
+
+  if (onClick) {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', () => {
+      remove();
+      onClick();
+    });
+  }
+  setTimeout(remove, ms);
 }

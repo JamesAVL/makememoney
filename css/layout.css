@@ -285,7 +285,7 @@
       "kpi"
       "stage"
       "nav";
-    grid-template-rows: 64px 1fr calc(60px + env(safe-area-inset-bottom, 0px));
+    grid-template-rows: calc(64px + env(safe-area-inset-top, 0px)) 1fr calc(60px + env(safe-area-inset-bottom, 0px));
     grid-template-columns: 1fr;
   }
   .rail, .ticker { display: none; }
@@ -294,10 +294,17 @@
     justify-content: space-around;
     border-right: none;
     border-top: 1px solid var(--border);
-    padding: 4px 6px calc(4px + env(safe-area-inset-bottom, 0px));
+    padding: 4px calc(6px + env(safe-area-inset-right, 0px))
+             calc(4px + env(safe-area-inset-bottom, 0px))
+             calc(6px + env(safe-area-inset-left, 0px));
   }
   .nav-btn { flex: 1; padding: 6px 0; }
-  .kpi { gap: 10px; padding: 0 10px; overflow-x: auto; }
+  .kpi {
+    gap: 10px;
+    padding: env(safe-area-inset-top, 0px) max(10px, env(safe-area-inset-right)) 0 max(10px, env(safe-area-inset-left));
+    overflow-x: auto;
+    touch-action: pan-x;
+  }
   .kpi-hype { width: 90px; }
   .kpi-xp { display: none; }
   .stage { padding: 10px; }
@@ -311,4 +318,17 @@
 .goal-mobile { display: none; margin-bottom: 12px; }
 @media (max-width: 900px) {
   .goal-mobile { display: block; }
+}
+
+/* Scroll containers: scroll inside, never chain out to the document */
+.stage { touch-action: pan-y; overscroll-behavior: contain; }
+.feed, .modal { overscroll-behavior: contain; }
+
+/* iOS standalone: status bar draws over us — push the KPI bar down */
+html.standalone .game { grid-template-rows: calc(64px + env(safe-area-inset-top, 0px)) 1fr 28px; }
+html.standalone .kpi { padding-top: env(safe-area-inset-top, 0px); }
+#banners { top: calc(72px + env(safe-area-inset-top, 0px)); }
+#toasts {
+  bottom: calc(44px + env(safe-area-inset-bottom, 0px));
+  right: calc(16px + env(safe-area-inset-right, 0px));
 }
