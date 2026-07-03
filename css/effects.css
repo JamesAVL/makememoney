@@ -1,0 +1,210 @@
+/* ============ effects: keyframes, ceremonies, reduced motion ============ */
+
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes panel-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes card-pop { 0% { transform: scale(1); } 40% { transform: scale(1.035); } 100% { transform: scale(1); } }
+@keyframes badge-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+@keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+@keyframes legendary-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(245, 185, 62, 0.14); }
+  50% { box-shadow: 0 0 22px rgba(245, 185, 62, 0.3); }
+}
+@keyframes ticker-scroll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+@keyframes feed-in { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+@keyframes toast-in { from { opacity: 0; transform: translateX(40px) scale(0.95); } to { opacity: 1; transform: none; } }
+@keyframes toast-out { to { opacity: 0; transform: translateY(24px); } }
+@keyframes banner-in { from { opacity: 0; transform: translateY(-26px); } to { opacity: 1; transform: none; } }
+@keyframes banner-out { to { opacity: 0; transform: translateY(-26px); } }
+@keyframes modal-in { from { opacity: 0; transform: translateY(14px) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes float-up {
+  0% { opacity: 0; transform: translateY(0) scale(0.9); }
+  12% { opacity: 1; transform: translateY(-6px) scale(1); }
+  100% { opacity: 0; transform: translateY(-52px); }
+}
+@keyframes slam-in {
+  0% { opacity: 0; transform: scale(1.5); }
+  55% { opacity: 1; transform: scale(0.97); }
+  75% { transform: scale(1.02); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes ring-pulse {
+  from { box-shadow: 0 0 0 0 var(--money-glow); }
+  to { box-shadow: 0 0 0 18px rgba(34, 214, 124, 0); }
+}
+@keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.015); } }
+@keyframes wobble { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
+@keyframes moment-bob {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+@keyframes flash-white {
+  0% { opacity: 0.1; } 50% { opacity: 0.08; } 100% { opacity: 0; }
+}
+@keyframes crt-off {
+  0% { opacity: 1; transform: scaleY(1); }
+  60% { opacity: 1; transform: scaleY(0.006); }
+  100% { opacity: 0; transform: scaleY(0.002) scaleX(0); }
+}
+@keyframes type-caret { 50% { border-color: transparent; } }
+
+/* Screen shake — applied to a wrapper, never body */
+@keyframes shake-1 { 0%, 100% { transform: none; } 25% { transform: translate(1px, -1px); } 75% { transform: translate(-1px, 1px); } }
+@keyframes shake-2 { 0%, 100% { transform: none; } 20% { transform: translate(2px, -2px); } 60% { transform: translate(-2px, 2px); } 85% { transform: translate(1px, 1px); } }
+@keyframes shake-4 { 0%, 100% { transform: none; } 15% { transform: translate(4px, -3px); } 45% { transform: translate(-4px, 3px); } 70% { transform: translate(3px, 2px); } 90% { transform: translate(-2px, -2px); } }
+.shake-1 { animation: shake-1 0.08s linear; }
+.shake-2 { animation: shake-2 0.15s linear; }
+.shake-4 { animation: shake-4 0.3s linear; }
+.shake-6 { animation: shake-4 0.45s linear; }
+
+/* Floating click numbers */
+.float-num {
+  position: fixed;
+  pointer-events: none;
+  font-family: var(--font-num);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--money);
+  text-shadow: 0 0 8px var(--money-glow);
+  animation: float-up 0.7s ease-out forwards;
+  z-index: 360;
+}
+.float-num.crit { font-size: 23px; color: var(--gold); text-shadow: 0 0 10px var(--gold-glow); }
+
+/* Hype tier slam */
+.tier-slam {
+  position: fixed;
+  top: 38%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--hype);
+  text-shadow: 0 0 24px var(--hype-glow);
+  animation: slam-in 0.5s var(--ease-pop) forwards, toast-out 0.3s 1s var(--ease-exit) forwards;
+  z-index: 520;
+  pointer-events: none;
+}
+.tier-slam.viral { color: var(--gold); text-shadow: 0 0 28px var(--gold-glow); font-size: 52px; }
+
+/* Pack Order button */
+.pack-btn {
+  width: 172px;
+  height: 172px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #34e893, var(--money-dim) 78%);
+  border: none;
+  color: #04220f;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  box-shadow: 0 0 34px var(--money-glow), inset 0 2px 0 rgba(255, 255, 255, 0.35);
+  animation: breathe 3s ease-in-out infinite;
+  transition: transform 0.08s;
+  user-select: none;
+  touch-action: manipulation;
+}
+.pack-btn:active { transform: scale(0.94); animation: none; }
+.pack-btn .sub { display: block; font-size: 11px; font-weight: 600; opacity: 0.75; font-family: var(--font-num); }
+.pack-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.pack-ring.fire { animation: ring-pulse 0.35s ease-out; }
+
+/* Viral moment floater */
+.moment {
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+  font-size: 44px;
+  filter: drop-shadow(0 0 14px var(--gold-glow));
+  animation: moment-bob 1.6s ease-in-out infinite;
+  user-select: none;
+  z-index: 380;
+}
+.moment .m-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+}
+
+/* Ceremony overlay */
+.ceremony {
+  position: absolute;
+  inset: 0;
+  background: #05070b;
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+  animation: fade-in 0.5s;
+}
+.ceremony .tally {
+  font-family: var(--font-num);
+  font-size: 16px;
+  line-height: 2.1;
+  color: var(--text-hi);
+  min-width: min(480px, 88vw);
+}
+.ceremony .tally .line { opacity: 0; }
+.ceremony .tally .line.show { opacity: 1; transition: opacity 0.25s; }
+.ceremony .tally .big {
+  font-size: 26px;
+  color: var(--gold);
+  text-shadow: 0 0 20px var(--gold-glow);
+  font-weight: 800;
+}
+.ceremony .boot-line { color: var(--text-lo); font-size: 13px; font-family: var(--font-num); }
+.ceremony .skip-hint { position: absolute; bottom: 22px; right: 26px; color: var(--text-dim); font-size: 11px; }
+
+/* Signature pad */
+.sig-line {
+  border-bottom: 2px solid var(--text-lo);
+  height: 56px;
+  position: relative;
+  margin: 14px 0 4px;
+  cursor: crosshair;
+  touch-action: none;
+}
+.sig-line canvas { position: absolute; inset: 0; }
+.sig-line .sig-hint {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--text-dim);
+  font-size: 11.5px;
+  font-style: italic;
+  pointer-events: none;
+}
+
+/* Offline envelope */
+.offline-report { text-align: left; font-family: var(--font-num); font-size: 14.5px; line-height: 2; }
+.offline-report .o-big { font-size: 28px; color: var(--gold); font-weight: 800; text-shadow: 0 0 18px var(--gold-glow); }
+
+/* White flash overlay for jackpots */
+.flash-overlay {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 640;
+}
+.flash-overlay.go { animation: flash-white 0.28s ease-out; }
+
+/* Reduced motion: kill the party, keep the information */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001s !important;
+  }
+  .ticker-track { animation: none; padding-left: 0; }
+  .pack-btn { animation: none; }
+}
