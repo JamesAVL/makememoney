@@ -12,7 +12,9 @@ import { tickersFrame } from './ui/components/ticker.js';
 import { setShakeEnabled } from './ui/components/celebrate.js';
 import { showModal } from './ui/components/modal.js';
 import { unlockAudio, sChaChing } from './audio/synth.js';
-import { OFFLINE_LINES, OFFLINE_FOOTNOTES } from './data/flavor.js';
+import { toast } from './ui/components/toast.js';
+import { dailyStandup } from './core/actions.js';
+import { OFFLINE_LINES, OFFLINE_FOOTNOTES, BOOT_LINES } from './data/flavor.js';
 
 import * as header from './ui/panels/header.js';
 import * as nav from './ui/panels/nav.js';
@@ -173,6 +175,47 @@ function boot() {
         },
       ],
     });
+  }
+
+  // --- Daily Standup: consistency streak that pauses, never resets ---
+  const today = new Date().toISOString().slice(0, 10);
+  const prevDay = state.acct.standup?.day;
+  const consecutive = prevDay
+    && (new Date(today) - new Date(prevDay)) === 86400000;
+  const standup = dailyStandup(state, today, consecutive);
+  if (standup && !standup.firstEver) {
+    setTimeout(() => {
+      toast({
+        icon: '🌅',
+        name: 'Daily Standup',
+        sub: standup.paused
+          ? `Streak paused at ${standup.streak}. Real gurus take rest days. First ad today: guaranteed 🔥 HIT+.`
+          : `Day ${standup.streak} — Consistency +${Math.min(20, standup.streak * 2)}% income. First ad today: guaranteed 🔥 HIT+.`,
+        tone: 'gold',
+      });
+    }, 2500);
+  }
+
+  // --- First-ever boot: 1.6s HustleOS splash ---
+  if (isFresh) {
+    const splash = document.createElement('div');
+    splash.className = 'ceremony';
+    splash.innerHTML = `
+      <div style="text-align:center">
+        <div class="kpi-logo" style="align-items:center"><span class="brand" style="font-size:30px">HustleOS™</span>
+        <span class="ver">v4.2.0 “Sigma Update”</span></div>
+        <div class="boot-line" id="b-line" style="margin-top:18px">Loading your empire…</div>
+        <div class="bar" style="width:240px;margin:12px auto 0"><div class="bar-fill" id="b-bar"></div></div>
+      </div>`;
+    document.getElementById('ceremony-root').appendChild(splash);
+    const lines = ['Loading your empire…', BOOT_LINES[0], BOOT_LINES[7], 'Empire not found. Starting from $0…'];
+    lines.forEach((l, i) => setTimeout(() => {
+      splash.querySelector('#b-line').textContent = l;
+      splash.querySelector('#b-bar').style.width = `${((i + 1) / lines.length) * 100}%`;
+    }, i * 400));
+    const closeSplash = () => splash.remove();
+    setTimeout(closeSplash, 1750);
+    splash.addEventListener('click', closeSplash);
   }
 
   // --- Start ---

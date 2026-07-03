@@ -72,6 +72,7 @@ export function createInitialState(now) {
       achievements: {},        // id -> wall time unlocked
       hallOfFame: [],          // [{title, views, at}]
       runLog: [],              // [{name, soldFor, investors, ms}]
+      standup: { day: '', streak: 0, guaranteed: false }, // daily bonus (pauses, never resets)
       stats: {
         itemsSold: 0, totalClicks: 0, crits: 0,
         totalLaunches: 0, viralHits: 0, megaVirals: 0, flops: 0,

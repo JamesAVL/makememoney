@@ -188,6 +188,11 @@ export function launchAd(state, platformId, boost = false) {
     state.ftue.riggedSpinDone = true;
     if (outcome.id === 'flop' || outcome.id === 'mid') outcome = OUTCOMES[2];
   }
+  // Daily Standup: the first ad of the day is guaranteed HIT+.
+  if (state.acct.standup?.guaranteed) {
+    state.acct.standup.guaranteed = false;
+    if (outcome.id === 'flop' || outcome.id === 'mid') outcome = OUTCOMES[2];
+  }
   if (odds.chaos && outcome.id !== 'mega' && rand(state) < BAL.CHAOS_CHANCE) {
     outcome = OUTCOMES[4]; // MEGA-VIRAL, because that is how the internet works
     chaos = true;
@@ -448,4 +453,22 @@ export function skipNiche(state) {
 
 export function generateCompanyName(state) {
   return `${pick(state, COMPANY_PREFIX)}${pick(state, COMPANY_SUFFIX)} ${pick(state, COMPANY_LEGAL)}`;
+}
+
+// --- Daily Standup -----------------------------------------------------------
+// Called once at boot with today's date string. Consecutive days grow the
+// Consistency streak (+2%/day, cap +20%); missing a day PAUSES it — never
+// resets. No countdown timers, no guilt. The bonus rewards showing up.
+
+export function dailyStandup(state, today, consecutive) {
+  const su = state.acct.standup;
+  if (!su || su.day === today) return null;
+  const firstEver = !su.day;
+  su.day = today;
+  su.guaranteed = true;
+  let paused = false;
+  if (firstEver || consecutive) su.streak = Math.min(10, su.streak + 1);
+  else paused = true;
+  invalidate();
+  return { streak: su.streak, paused, firstEver };
 }

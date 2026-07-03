@@ -212,7 +212,8 @@ function compute(state) {
   const levelMult = 1 + BAL.LEVEL_INCOME * (state.acct.level - 1);
   const achMult = 1 + ACH_INCOME_BONUS * Object.keys(state.acct.achievements).length;
   const fbMult = state.run.fbSlot ? state.run.fbSlot.mult : 1;
-  const staticGlobal = eff.globalMult * invMult * levelMult * achMult * fbMult;
+  const standupMult = 1 + 0.02 * Math.min(10, state.acct.standup?.streak || 0);
+  const staticGlobal = eff.globalMult * invMult * levelMult * achMult * fbMult * standupMult;
 
   const perk = (id) => state.acct.perks[id] || 0;
 

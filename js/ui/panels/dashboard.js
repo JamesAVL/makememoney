@@ -55,6 +55,10 @@ export function mount(root, state) {
           <div class="stat-tile"><div class="s-label">Vibes</div><div class="s-val" id="d-vibes">—</div></div>
         </div>
         <div id="d-buffs" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px"></div>
+        <div id="d-team" class="hidden" style="margin-top:12px">
+          <div class="panel-title" style="margin-bottom:6px">Your Team (unpaid)</div>
+          <div id="d-team-list" style="font-size:11.5px;line-height:1.9;color:var(--text-lo)"></div>
+        </div>
       </div>
     </div>`;
 
@@ -71,6 +75,8 @@ export function mount(root, state) {
     conv: root.querySelector('#d-conv'),
     vibes: root.querySelector('#d-vibes'),
     buffs: root.querySelector('#d-buffs'),
+    team: root.querySelector('#d-team'),
+    teamList: root.querySelector('#d-team-list'),
   };
 
   chart = createChart(root.querySelector('#d-chart'));
@@ -168,4 +174,19 @@ export function update(state, now) {
   }
   if (temp.capped) chips += `<span class="chip hot">⚠ ALGORITHM SATURATED</span>`;
   if (els.buffs.innerHTML !== chips) els.buffs.innerHTML = chips;
+
+  // VA roster — the sim runs these from Lv 8/12/18/25; show the "team"
+  const lv = state.acct.level;
+  els.team.classList.toggle('hidden', lv < 8);
+  if (lv >= 8) {
+    const spin = ['…', '…', '…', ''][Math.floor(now / 500) % 4];
+    let team = `🤖 <b>Brayden</b> (Auto-Packer) — packing 2 orders/sec${spin}`;
+    if (lv >= 12) team += `<br>🧢 <b>The Intern</b> — posting an ad every 5s. Morale: "content"${spin}`;
+    else team += `<br class="muted"><span class="muted">🔒 Lv 12: an intern appears</span>`;
+    if (lv >= 18) team += `<br>📋 <b>Campaign Manager</b> — auto-launching at 60% power when you're idle${spin}`;
+    else if (lv >= 12) team += `<br><span class="muted">🔒 Lv 18: a campaign manager appears</span>`;
+    if (lv >= 25) team += `<br>📡 <b>Trend Watcher</b> — catching Viral Moments at 50% value${spin}`;
+    else if (lv >= 18) team += `<br><span class="muted">🔒 Lv 25: a trend watcher appears</span>`;
+    if (els.teamList.innerHTML !== team) els.teamList.innerHTML = team;
+  }
 }
