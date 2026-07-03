@@ -15,6 +15,9 @@ import { registerPanel, flush } from './ui/render.js';
 import { setNotation, fmtCash, fmtInt, fmtDur } from './ui/fmt.js';
 import { initParticles, particlesFrame, setParticlesEnabled } from './ui/components/particles.js';
 import { tickersFrame } from './ui/components/ticker.js';
+import { odosFrame } from './ui/components/odometer.js';
+import { ambientFrame } from './ui/components/ambient.js';
+import { initDrawer } from './ui/components/drawer.js';
 import { setShakeEnabled } from './ui/components/celebrate.js';
 import { showModal } from './ui/components/modal.js';
 import { unlockAudio, sChaChing } from './audio/synth.js';
@@ -72,6 +75,7 @@ function boot() {
 
   setNotation(state.settings.notation);
   setParticlesEnabled(state.settings.particles);
+  document.body.classList.toggle('fx-off', !state.settings.particles);
   setShakeEnabled(state.settings.shake);
   applyTheme(state.settings.theme || 'dark');
   unlockAudio(state.settings);
@@ -126,7 +130,7 @@ function boot() {
   settings.mount(document.getElementById('panel-settings'), state);
   feed.mount(document.getElementById('feed'), state);
   goal.mount(document.getElementById('next-goal'), state);
-  goal.mount(document.getElementById('d-goal-mobile'), state);
+  initDrawer();
   tickerbar.mount(document.getElementById('ticker'), state);
   moments.mount(null, state);
   onboard.init(state);
@@ -150,6 +154,8 @@ function boot() {
     feed.update(s, frameNow);
     onboard.update(s, frameNow);
     tickersFrame(frameNow);
+    odosFrame(frameNow);
+    ambientFrame(s, frameNow);
     particlesFrame(frameNow);
   };
 

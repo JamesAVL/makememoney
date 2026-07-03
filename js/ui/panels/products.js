@@ -48,7 +48,10 @@ export function mount(root, state) {
     card.className = 'card locked hidden';
     card.dataset.pid = p.id;
     card.innerHTML = `
-      <div class="card-title"><span style="font-size:19px">${p.icon}</span> <span class="p-name">${p.name}</span></div>
+      <div class="card-title">
+        <span class="p-tile" data-tag="${p.tags[0]}"><span class="p-glyph">${p.icon}</span><span class="p-ring"></span></span>
+        <span class="p-name">${p.name}</span>
+      </div>
       <div class="card-sub p-desc"></div>
       <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:6px">
         <span class="muted">Owned <b class="p-count num" style="color:var(--text-hi)">0</b></span>
@@ -121,6 +124,9 @@ export function update(state, now) {
 
     card.classList.remove('locked');
     const hits = milestonesHit(count);
+    const tile = card.querySelector('.p-tile');
+    const mh = String(Math.min(7, hits));
+    if (tile.dataset.mhits !== mh) tile.dataset.mhits = mh;
     setText(card, '.p-desc', hits >= 4 ? `${p.desc} ${p.milestoneName ? '· “' + p.milestoneName + '”' : ''}` : p.desc);
     setText(card, '.p-count', fmtInt(count));
     setText(card, '.p-cps', count ? `$${fmt(d.productCps[p.id] * d.staticGlobal)}/s` : '');

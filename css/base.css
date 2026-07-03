@@ -2,6 +2,16 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* Vendored display face (OFL) — squared terminals, dead-on for HustleOS.
+   If the file is missing, --font-display falls back to the system stack. */
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("../assets/fonts/SpaceGrotesk-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* Palette — dark analytics dashboard (default) */
   --bg-base: #0b0e14;
@@ -26,10 +36,39 @@
   --gold-glow: rgba(245, 185, 62, 0.45);
   --danger: #f4536e;
 
-  /* Surfaces & depth */
-  --panel-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  --pop-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
-  --modal-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  /* Elevation: tight key shadow + wide ambient + top inner highlight */
+  --elev-1: 0 1px 2px rgba(0,0,0,.30), 0 4px 14px rgba(0,0,0,.22),
+            inset 0 1px 0 rgba(255,255,255,.05);
+  --elev-2: 0 2px 4px rgba(0,0,0,.34), 0 10px 24px rgba(0,0,0,.28),
+            inset 0 1px 0 rgba(255,255,255,.07);
+  --elev-3: 0 4px 10px rgba(0,0,0,.42), 0 18px 44px rgba(0,0,0,.38),
+            inset 0 1px 0 rgba(255,255,255,.08);
+  --elev-4: 0 10px 22px rgba(0,0,0,.55), 0 34px 90px rgba(0,0,0,.55),
+            inset 0 1px 0 rgba(255,255,255,.09);
+
+  /* Gradient edge: light catches the top rim, bottom falls into shadow */
+  --edge: linear-gradient(180deg, rgba(255,255,255,.10),
+          rgba(255,255,255,.025) 35%, rgba(0,0,0,.30));
+  --edge-hi: linear-gradient(180deg, rgba(255,255,255,.16),
+          rgba(255,255,255,.04) 35%, rgba(0,0,0,.32));
+
+  /* Glass + translucent surfaces (aurora breathes through) */
+  --glass-bg: color-mix(in srgb, var(--bg-panel) 78%, transparent);
+  --glass-blur: blur(16px) saturate(1.5);
+  --surf-panel: color-mix(in srgb, var(--bg-panel) 94%, transparent);
+
+  /* Legacy depth tokens retargeted — every existing surface upgrades free */
+  --panel-shadow: var(--elev-1);
+  --pop-shadow: var(--elev-3);
+  --modal-shadow: var(--elev-4);
+
+  /* Ambient aurora + grain */
+  --aur-1: color-mix(in srgb, var(--money) 15%, transparent);
+  --aur-2: color-mix(in srgb, var(--data) 13%, transparent);
+  --aur-3: color-mix(in srgb, var(--hype) 10%, transparent);
+  --aur-4: color-mix(in srgb, var(--gold) 16%, transparent);
+  --grain-alpha: .06;
+  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
   --chart-grid: #232a38;
   --chart-label: #98a2b4;
   --chart-line: #22d67c;
@@ -48,6 +87,7 @@
   --radius-sm: 8px;
   --font-ui: -apple-system, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;
   --font-num: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, Menlo, monospace;
+  --font-display: "Space Grotesk", var(--font-ui);
 
   /* Motion */
   --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
@@ -92,9 +132,24 @@
   --gold-glow: rgba(217, 147, 13, 0.32);
   --danger: #e11d48;
 
-  --panel-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 3px 10px rgba(16, 24, 40, 0.05);
-  --pop-shadow: 0 8px 28px rgba(16, 24, 40, 0.16);
-  --modal-shadow: 0 20px 60px rgba(16, 24, 40, 0.22);
+  --elev-1: 0 1px 2px rgba(16,24,40,.06), 0 4px 12px rgba(16,24,40,.06),
+            inset 0 1px 0 #fff;
+  --elev-2: 0 2px 4px rgba(16,24,40,.08), 0 10px 24px rgba(16,24,40,.10),
+            inset 0 1px 0 #fff;
+  --elev-3: 0 6px 12px rgba(16,24,40,.10), 0 20px 48px rgba(16,24,40,.16);
+  --elev-4: 0 12px 24px rgba(16,24,40,.14), 0 36px 90px rgba(16,24,40,.24);
+  --edge: linear-gradient(180deg, rgba(255,255,255,.95), rgba(16,24,40,.14));
+  --edge-hi: linear-gradient(180deg, #fff, rgba(16,24,40,.20));
+  --glass-bg: color-mix(in srgb, #ffffff 72%, transparent);
+  --surf-panel: color-mix(in srgb, var(--bg-panel) 96%, transparent);
+  --panel-shadow: var(--elev-1);
+  --pop-shadow: var(--elev-3);
+  --modal-shadow: var(--elev-4);
+  --aur-1: color-mix(in srgb, var(--money) 9%, transparent);
+  --aur-2: color-mix(in srgb, var(--data) 8%, transparent);
+  --aur-3: color-mix(in srgb, var(--hype) 6%, transparent);
+  --aur-4: color-mix(in srgb, var(--gold) 10%, transparent);
+  --grain-alpha: .035;
   --chart-grid: #e3e9f1;
   --chart-label: #7c8aa0;
   --chart-line: #0d9d5c;
@@ -189,4 +244,64 @@ html.standalone body::before {
   background: rgba(5, 7, 11, 0.55);
   z-index: 900;
   pointer-events: none;
+}
+
+/* ============ ambient living background ============ */
+#ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: var(--bg-base);
+  transition: background 0.25s;
+}
+.game { position: relative; z-index: 1; background: transparent; }
+
+/* Blobs: pre-soft radial gradients — no filter, transform-only motion */
+.aur {
+  position: absolute;
+  width: 70vmax; height: 70vmax;
+  border-radius: 50%;
+  will-change: transform;
+}
+.a1 { left: -20vmax; top: -25vmax;
+  background: radial-gradient(closest-side, var(--aur-1), transparent 70%);
+  animation: aur-drift-1 70s ease-in-out infinite alternate; }
+.a2 { right: -25vmax; top: -10vmax;
+  background: radial-gradient(closest-side, var(--aur-2), transparent 70%);
+  animation: aur-drift-2 90s ease-in-out infinite alternate; }
+.a3 { left: 20vw; bottom: -40vmax;
+  background: radial-gradient(closest-side, var(--aur-3), transparent 70%);
+  animation: aur-drift-3 110s ease-in-out infinite alternate; }
+.a4 { right: -10vmax; bottom: -30vmax; opacity: 0;
+  background: radial-gradient(closest-side, var(--aur-4), transparent 70%);
+  animation: aur-drift-2 80s ease-in-out infinite alternate-reverse;
+  transition: opacity 3s linear; }
+
+/* Wealth tint: the room slowly turns gold as the empire grows */
+:root[data-wealth="1"] .a4 { opacity: .35; }
+:root[data-wealth="2"] .a4 { opacity: .55; }
+:root[data-wealth="3"] .a4 { opacity: .75; }
+:root[data-wealth="4"] .a4 { opacity: 1; }
+
+/* Grain + vignette (static paints) */
+#ambient::after {
+  content: ""; position: absolute; inset: 0;
+  background-image: var(--noise);
+  opacity: var(--grain-alpha);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+#ambient::before {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(130% 100% at 50% 25%, transparent 55%, rgba(0,0,0,.38));
+  pointer-events: none;
+}
+:root[data-theme="light"] #ambient::before {
+  background: radial-gradient(130% 100% at 50% 25%, transparent 60%, rgba(16,24,40,.10));
+}
+
+/* Display face: headers, brand, ceremony slams, the hero button */
+h1, h2, h3, h4, .kpi-logo .brand, .panel-title, .tier-slam, .pack-btn, .card .card-title {
+  font-family: var(--font-display);
 }

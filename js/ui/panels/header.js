@@ -4,6 +4,7 @@
 import { totalCps, tempMult, getDerived, hypeMult, xpToNext, BAL } from '../../core/balance.js';
 import { fmt, fmtCash, fmtInt } from '../fmt.js';
 import { createTicker } from '../components/ticker.js';
+import { createOdometer } from '../components/odometer.js';
 import { bus } from '../../core/bus.js';
 import { slam } from '../components/celebrate.js';
 import { setMuted } from '../../audio/synth.js';
@@ -66,7 +67,7 @@ export function mount(root, state) {
     save: root.querySelector('#k-save'),
   };
 
-  createTicker(els.cash, () => state_.run.cash, fmtCash);
+  createOdometer(els.cash, () => state_.run.cash, fmtCash);
   createTicker(els.followers, () => state_.run.followers, (n) => fmtInt(n));
 
   root.querySelector('#logo').addEventListener('click', () => {

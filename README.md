@@ -12,7 +12,8 @@ you're using one — **HustleOS™ v4.2.0 "Sigma Update"**.
 
 ## Play
 
-**Zero build, zero dependencies, zero network.** Open `index.html` in a browser, or serve
+**Zero build, zero dependencies, zero network.** Play at the deployed site, install it as
+an app (it's a full PWA: offline-capable, home-screen installable, haptics, wake lock), or serve
 the folder statically:
 
 ```bash
@@ -20,7 +21,9 @@ python3 -m http.server 8000   # then visit http://localhost:8000
 ```
 
 Works on GitHub Pages out of the box. Saves live in `localStorage` (autosaved every 15s,
-dual-slot with backup; export/import from Settings).
+dual-slot with backup; export/import from Settings). A service worker caches the app shell —
+after the first visit it loads and plays fully offline; deploys surface an in-app
+"update ready" toast (append `?sw=off` to bypass/clear the worker if ever needed).
 
 ### The loop
 

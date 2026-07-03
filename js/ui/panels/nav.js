@@ -23,16 +23,53 @@ let root_ = null;
 let state_ = null;
 let active = 'dashboard';
 let btns = {};
+let indicator = null;
 
 export function currentTab() { return active; }
 
+function moveIndicator(btn) {
+  if (!indicator || !btn || btn.classList.contains('hidden')) return;
+  const mobile = matchMedia('(max-width: 900px)').matches;
+  if (mobile) {
+    indicator.style.width = `${btn.offsetWidth}px`;
+    indicator.style.height = '';
+    indicator.style.transform = `translateX(${btn.offsetLeft}px)`;
+    indicator.style.left = '0';
+    indicator.style.top = '';
+  } else {
+    indicator.style.width = 'calc(100% - 16px)';
+    indicator.style.height = `${btn.offsetHeight}px`;
+    indicator.style.transform = `translateY(${btn.offsetTop}px)`;
+    indicator.style.left = '8px';
+    indicator.style.top = '0';
+  }
+}
+
 export function switchTab(id) {
   if (!btns[id] || btns[id].classList.contains('locked')) return;
+  const oldIdx = TABS.findIndex((t) => t.id === active);
+  const newIdx = TABS.findIndex((t) => t.id === id);
+  const stage = document.getElementById('stage');
+  stage.style.setProperty('--axis', newIdx >= oldIdx ? '1' : '-1');
+  // Direction-aware exit: keep the old panel alive briefly
+  const incoming = document.getElementById(`panel-${id}`);
+  incoming?.classList.remove('leaving');
+  const oldPanel = document.getElementById(`panel-${active}`);
+  if (oldPanel && active !== id && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    oldPanel.classList.add('leaving');
+    oldPanel.addEventListener('animationend', () => oldPanel.classList.remove('leaving'), { once: true });
+  }
   active = id;
   for (const t of TABS) {
     btns[t.id]?.classList.toggle('active', t.id === id);
-    document.getElementById(`panel-${t.id}`)?.classList.toggle('active', t.id === id);
+    const panel = document.getElementById(`panel-${t.id}`);
+    if (panel && !panel.classList.contains('leaving')) {
+      panel.classList.toggle('active', t.id === id);
+    } else if (panel) {
+      panel.classList.toggle('active', t.id === id);
+    }
   }
+  moveIndicator(btns[id]);
   markAllDirty();
 }
 
@@ -49,6 +86,11 @@ export function mount(root, state) {
     root.appendChild(b);
     btns[t.id] = b;
   }
+  indicator = document.createElement('span');
+  indicator.className = 'nav-ind';
+  indicator.setAttribute('aria-hidden', 'true');
+  root.prepend(indicator);
+  window.addEventListener('resize', () => moveIndicator(btns[active]));
   switchTab('dashboard');
 }
 
@@ -57,6 +99,7 @@ function isUnlocked(state, id) {
   return t.always || state.ftue.unlocks[id];
 }
 
+let visSig = '';
 export function update(state) {
   let teasers = 0;
   for (const t of TABS) {
@@ -79,6 +122,12 @@ export function update(state) {
     } else {
       b.classList.add('hidden');
     }
+  }
+  // Button offsets shift when tabs lock/unlock/hide — keep the pill honest.
+  const sig = TABS.map((t) => btns[t.id].className).join('|');
+  if (sig !== visSig) {
+    visSig = sig;
+    moveIndicator(btns[active]);
   }
 }
 

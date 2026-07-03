@@ -57,6 +57,8 @@ function addEntry(html, cls = '') {
   el.className = `feed-entry ${cls}`;
   el.innerHTML = html;
   root_.prepend(el);
+  const peek = document.getElementById('drawer-latest');
+  if (peek) peek.textContent = el.textContent;
 }
 
 export function update(state, now) {

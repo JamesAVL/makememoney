@@ -29,12 +29,19 @@
         .then(function () { location.reload(); });
     }, { once: true });
   </script>
+  <link rel="preload" href="assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/effects.css">
 </head>
 <body>
+  <div id="ambient" aria-hidden="true">
+    <div class="aur a1"></div>
+    <div class="aur a2"></div>
+    <div class="aur a3"></div>
+    <div class="aur a4"></div>
+  </div>
   <div id="game" class="game">
     <header id="kpi" class="kpi" aria-label="Key metrics"></header>
     <nav id="nav" class="nav" aria-label="Dashboard sections"></nav>
@@ -57,6 +64,17 @@
       <div id="ticker-track" class="ticker-track"></div>
     </footer>
   </div>
+
+  <div id="feed-drawer-clip" class="feed-drawer-clip" aria-hidden="true">
+    <div id="feed-drawer" class="feed-drawer">
+      <button class="drawer-grab" id="drawer-grab" aria-label="Live orders — swipe up">
+        <span class="grab-pill"></span>
+        <span class="drawer-peek"><span id="drawer-latest" class="peek-line">No orders yet.</span></span>
+      </button>
+      <div class="drawer-body" id="drawer-body"></div>
+    </div>
+  </div>
+  <div id="drawer-scrim" class="drawer-scrim" hidden></div>
 
   <canvas id="fx" aria-hidden="true"></canvas>
   <div id="moment-root" aria-hidden="true"></div>

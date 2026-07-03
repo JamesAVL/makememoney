@@ -139,6 +139,7 @@ export function mount(root, state) {
   part.addEventListener('change', () => {
     state_.settings.particles = part.checked;
     setParticlesEnabled(part.checked);
+    document.body.classList.toggle('fx-off', !part.checked);
   });
   shake.addEventListener('change', () => {
     state_.settings.shake = shake.checked;

@@ -8,6 +8,19 @@
   50% { box-shadow: 0 0 14px 1px var(--money-glow); }
 }
 @keyframes rim-spin { to { transform: rotate(360deg); } }
+@keyframes aur-drift-1 { to { transform: translate(9vw, 6vh) scale(1.15) rotate(20deg); } }
+@keyframes aur-drift-2 { to { transform: translate(-8vw, 9vh) scale(0.9); } }
+@keyframes aur-drift-3 { to { transform: translate(6vw, -7vh) scale(1.2) rotate(-15deg); } }
+@keyframes axis-in {
+  from { opacity: 0; transform: translateX(calc(var(--axis, 1) * 18px)); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes axis-out {
+  to { opacity: 0; transform: translateX(calc(var(--axis, 1) * -18px)); }
+}
+@keyframes rise-in { from { opacity: 0; transform: translateY(10px); } }
+@keyframes sheet-in { from { transform: translateY(100%); } }
+@keyframes sheet-out { to { transform: translateY(105%); } }
 @keyframes panel-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @keyframes card-pop { 0% { transform: scale(1); } 40% { transform: scale(1.035); } 100% { transform: scale(1); } }
 @keyframes badge-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
@@ -95,7 +108,18 @@
 .tier-slam.viral { color: var(--gold); text-shadow: 0 0 28px var(--gold-glow); font-size: 52px; }
 
 /* Pack Order button */
-.pack-wrap { position: relative; display: inline-block; }
+.pack-wrap { position: relative; display: inline-block; isolation: isolate; }
+.pack-wrap::after {
+  content: ""; position: absolute; left: 12%; right: 12%; bottom: -10px;
+  height: 18px; border-radius: 50%;
+  background: radial-gradient(50% 100% at 50% 50%, rgba(0,0,0,.45), transparent 70%);
+  transition: transform .35s var(--spring), opacity .2s;
+  pointer-events: none; z-index: -1;
+}
+.pack-wrap:has(.pack-btn:active)::after { transform: scaleX(.9); opacity: .7; }
+:root[data-theme="light"] .pack-wrap::after {
+  background: radial-gradient(50% 100% at 50% 50%, rgba(16,24,40,.25), transparent 70%);
+}
 .pack-rim {
   position: absolute;
   inset: -7px;
@@ -185,6 +209,10 @@
 }
 .ceremony .boot-line { color: #98a2b4; font-size: 13px; font-family: var(--font-num); }
 .ceremony .skip-hint { position: absolute; bottom: 22px; right: 26px; color: var(--text-dim); font-size: 11px; }
+.ceremony::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px);
+}
 
 /* Signature pad */
 .sig-line {
@@ -222,8 +250,13 @@
 }
 .flash-overlay.go { animation: flash-white 0.28s ease-out; }
 
+/* Ambient FX gates */
+.fx-off .aur { animation-play-state: paused; }
+.fx-off #ambient::after { display: none; }
+
 /* Reduced motion: kill the party, keep the information */
 @media (prefers-reduced-motion: reduce) {
+  .aur { animation: none; }
   *, *::before, *::after {
     animation-duration: 0.001s !important;
     animation-iteration-count: 1 !important;

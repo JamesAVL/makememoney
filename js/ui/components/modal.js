@@ -13,6 +13,40 @@ export function showModal({ title, body, actions = [], dismissible = true, autoM
   modal.setAttribute('role', 'dialog');
   modal.setAttribute('aria-modal', 'true');
 
+  // Mobile bottom sheet: real drag handle (pseudo-elements can't carry
+  // touch-action); swipe down to dismiss when dismissible.
+  const isSheet = matchMedia('(max-width: 900px)').matches;
+  if (isSheet && dismissible) {
+    const handle = document.createElement('div');
+    handle.className = 'sheet-handle';
+    modal.appendChild(handle);
+    let startY = 0;
+    let dy = 0;
+    let t0 = 0;
+    handle.addEventListener('pointerdown', (e) => {
+      startY = e.clientY;
+      dy = 0;
+      t0 = performance.now();
+      handle.setPointerCapture(e.pointerId);
+      modal.style.transition = 'none';
+    });
+    handle.addEventListener('pointermove', (e) => {
+      if (!handle.hasPointerCapture(e.pointerId)) return;
+      dy = Math.max(0, e.clientY - startY);
+      modal.style.transform = `translateY(${dy}px)`;
+    });
+    handle.addEventListener('pointerup', () => {
+      const v = dy / Math.max(1, performance.now() - t0);
+      if (dy > 120 || v > 0.55) {
+        modal.classList.add('sheet-dismissing');
+        modal.addEventListener('animationend', () => finish(null), { once: true });
+      } else {
+        modal.style.transition = 'transform 0.3s var(--spring)';
+        modal.style.transform = '';
+      }
+    });
+  }
+
   const h = document.createElement('h3');
   h.textContent = title;
   modal.appendChild(h);
@@ -25,11 +59,11 @@ export function showModal({ title, body, actions = [], dismissible = true, autoM
   const row = document.createElement('div');
   row.className = 'modal-actions';
   let timer = null;
-  const finish = (fn) => {
+  function finish(fn) {
     if (timer) clearInterval(timer);
     closeModal();
     if (fn) fn();
-  };
+  }
   actions.forEach((a, i) => {
     const b = document.createElement('button');
     b.className = `btn ${a.class || (i === 0 ? 'btn-primary' : '')}`;

@@ -18,7 +18,6 @@ let chart = null;
 export function mount(root, state) {
   state_ = state;
   root.innerHTML = `
-    <div id="d-goal-mobile" class="goal-mobile"></div>
     <div class="panel" style="padding-bottom:8px">
       <div class="panel-title">
         <span>Revenue — <span id="d-company"></span></span>
