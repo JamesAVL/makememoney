@@ -114,7 +114,7 @@ export function ownedHooks(state) {
 function weightedTag(state, tags) {
   // Wave tag, warm tag and niche tag are twice as likely to roll.
   const s = state.sim;
-  const nicheTag = state.run.niche ? require_(state.run.niche) : null;
+  const nicheTag = state.run.niche ? nicheTagOf(state.run.niche) : null;
   return pickWeighted(state, tags, (tg) => {
     let w = 1;
     if (tg.id === s.waveTag || tg.id === s.warmTag) w *= 2;
@@ -123,8 +123,7 @@ function weightedTag(state, tags) {
   });
 }
 
-function require_(nicheId) {
-  // Local import indirection kept trivial: niches are tiny.
+function nicheTagOf(nicheId) {
   const n = NICHES.find((x) => x.id === nicheId);
   return n ? n.tag : null;
 }
@@ -144,7 +143,7 @@ export function spinReels(state, locks = {}) {
   state.run.energy -= 1;
   state.run.spins++;
 
-  const nicheTag = state.run.niche ? require_(state.run.niche) : null;
+  const nicheTag = state.run.niche ? nicheTagOf(state.run.niche) : null;
   const hook = locks.hookId
     ? HOOKS_BY_ID[locks.hookId]
     : pickWeighted(state, hooks, (h) => (nicheTag && h.tags.includes(nicheTag) ? 2 : 1));

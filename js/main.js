@@ -44,6 +44,14 @@ function otherTabActive() {
     return hb && hb.id !== TAB_ID && Date.now() - hb.t < 5000;
   } catch { return false; }
 }
+// Release the heartbeat on the way out so a same-tab reload isn't mistaken
+// for a second tab.
+window.addEventListener('pagehide', () => {
+  try {
+    const hb = JSON.parse(localStorage.getItem(HB_KEY) || 'null');
+    if (hb && hb.id === TAB_ID) localStorage.removeItem(HB_KEY);
+  } catch { /* nothing to release */ }
+});
 
 function boot() {
   // --- Load or create ---

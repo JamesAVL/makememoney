@@ -107,7 +107,7 @@ export function mount(root, state) {
   root.querySelector('#s-export').addEventListener('click', () => {
     io.value = exportSave(state_, Date.now());
     io.select();
-    try { navigator.clipboard?.writeText(io.value); } catch { /* clipboard optional */ }
+    navigator.clipboard?.writeText(io.value).catch(() => { /* clipboard optional */ });
     toast({ icon: '📤', name: 'Save exported', sub: 'Copied to clipboard (and the box below)' });
   });
   root.querySelector('#s-import').addEventListener('click', () => {
