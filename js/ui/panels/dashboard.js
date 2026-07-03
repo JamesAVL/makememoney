@@ -18,6 +18,7 @@ let chart = null;
 export function mount(root, state) {
   state_ = state;
   root.innerHTML = `
+    <div id="d-goal-mobile" class="goal-mobile"></div>
     <div class="panel" style="padding-bottom:8px">
       <div class="panel-title">
         <span>Revenue — <span id="d-company"></span></span>
@@ -34,7 +35,8 @@ export function mount(root, state) {
 
     <div style="display:flex;gap:14px;align-items:stretch;flex-wrap:wrap">
       <div class="panel" style="flex:1;min-width:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:22px">
-        <div style="position:relative">
+        <div class="pack-wrap">
+          <div class="pack-rim" aria-hidden="true"></div>
           <button class="pack-btn" id="d-pack">📦 PACK ORDER<span class="sub" id="d-packval">+$1.00</span></button>
           <div class="pack-ring" id="d-ring"></div>
         </div>

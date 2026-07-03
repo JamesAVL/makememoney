@@ -7,6 +7,7 @@ import { exportSave, importSave, hardReset, saveToStorage } from '../../core/sav
 import { setParticlesEnabled } from '../components/particles.js';
 import { setShakeEnabled } from '../components/celebrate.js';
 import { showModal } from '../components/modal.js';
+import { applyTheme } from '../theme.js';
 import { toast } from '../components/toast.js';
 
 let state_ = null;
@@ -18,6 +19,13 @@ export function mount(root, state) {
     <div class="panel">
       <div class="panel-title"><span>⚙️ Settings — HustleOS™ Control Panel</span></div>
       <div style="display:grid;gap:14px;max-width:460px">
+        <label style="display:flex;justify-content:space-between;align-items:center">
+          <span>🌙 Theme</span>
+          <span class="qty-toggle">
+            <button id="s-dark">Dark</button>
+            <button id="s-light">Light</button>
+          </span>
+        </label>
         <label style="display:flex;justify-content:space-between;align-items:center;gap:10px">
           <span>🔊 Volume</span>
           <input type="range" id="s-vol" min="0" max="1" step="0.05" style="flex:1;max-width:200px">
@@ -75,6 +83,21 @@ export function mount(root, state) {
   const part = root.querySelector('#s-part');
   const shake = root.querySelector('#s-shake');
   statsEl = root.querySelector('#s-stats');
+
+  const darkBtn = root.querySelector('#s-dark');
+  const lightBtn = root.querySelector('#s-light');
+  const syncTheme = () => {
+    darkBtn.classList.toggle('active', state_.settings.theme !== 'light');
+    lightBtn.classList.toggle('active', state_.settings.theme === 'light');
+  };
+  const setTheme = (t) => {
+    state_.settings.theme = t;
+    applyTheme(t);
+    syncTheme();
+  };
+  darkBtn.addEventListener('click', () => setTheme('dark'));
+  lightBtn.addEventListener('click', () => setTheme('light'));
+  syncTheme();
 
   vol.value = state.settings.volume;
   mute.checked = state.settings.muted;

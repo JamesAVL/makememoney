@@ -5,6 +5,17 @@ import { fmt } from '../fmt.js';
 
 const WINDOWS = { '60s': 60000, '10m': 600000, 'ALL': Infinity };
 
+function themeColors() {
+  const cs = getComputedStyle(document.documentElement);
+  return {
+    grid: cs.getPropertyValue('--chart-grid').trim() || '#232a38',
+    label: cs.getPropertyValue('--chart-label').trim() || '#98a2b4',
+    line: cs.getPropertyValue('--chart-line').trim() || '#22d67c',
+    fill: cs.getPropertyValue('--chart-fill').trim() || 'rgba(34,214,124,0.16)',
+    glow: cs.getPropertyValue('--chart-glow').trim() || 'rgba(34,214,124,0.32)',
+  };
+}
+
 export function createChart(canvas) {
   const ctx = canvas.getContext('2d');
   let dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -32,6 +43,7 @@ export function createChart(canvas) {
     draw(state, now, liveCps) {
       if (now - lastDraw < 100) return;
       lastDraw = now;
+      const C = themeColors();
       if (!canvas.width) resize();
       const W = canvas.width, H = canvas.height;
       ctx.clearRect(0, 0, W, H);
@@ -60,7 +72,7 @@ export function createChart(canvas) {
       const Y = (v) => H - 14 * dpr - (v / yMax) * (H - 26 * dpr);
 
       // grid
-      ctx.strokeStyle = '#232a38';
+      ctx.strokeStyle = C.grid;
       ctx.lineWidth = 1;
       ctx.setLineDash([4 * dpr, 5 * dpr]);
       for (let i = 1; i <= 3; i++) {
@@ -71,8 +83,8 @@ export function createChart(canvas) {
 
       // area fill
       const grad = ctx.createLinearGradient(0, 0, 0, H);
-      grad.addColorStop(0, 'rgba(34,214,124,0.16)');
-      grad.addColorStop(1, 'rgba(34,214,124,0)');
+      grad.addColorStop(0, C.fill);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.beginPath();
       ctx.moveTo(X(pts[0][0]), H - 14 * dpr);
       for (const [ts, v] of pts) ctx.lineTo(X(ts), Y(v));
@@ -88,21 +100,21 @@ export function createChart(canvas) {
         for (const [ts, v] of pts) ctx.lineTo(X(ts), Y(v));
         ctx.stroke();
       };
-      ctx.strokeStyle = 'rgba(34,214,124,0.32)';
+      ctx.strokeStyle = C.glow;
       ctx.lineWidth = 6 * dpr;
       ctx.lineJoin = 'round';
       drawLine();
-      ctx.strokeStyle = '#22d67c';
+      ctx.strokeStyle = C.line;
       ctx.lineWidth = 2 * dpr;
       drawLine();
 
       // live head dot
       const hx = X(t), hy = Y(liveCps);
-      ctx.fillStyle = '#22d67c';
+      ctx.fillStyle = C.line;
       ctx.beginPath();
       ctx.arc(hx, hy, 3.5 * dpr, 0, 6.29);
       ctx.fill();
-      ctx.fillStyle = 'rgba(34,214,124,0.3)';
+      ctx.fillStyle = C.glow;
       ctx.beginPath();
       ctx.arc(hx, hy, (5 + Math.sin(now / 200) * 2) * dpr, 0, 6.29);
       ctx.fill();
@@ -116,7 +128,7 @@ export function createChart(canvas) {
       }
 
       // y label
-      ctx.fillStyle = '#98a2b4';
+      ctx.fillStyle = C.label;
       ctx.font = `${10 * dpr}px ui-monospace, monospace`;
       ctx.textAlign = 'left';
       ctx.fillText('$' + fmt(yMax) + '/s', 6 * dpr, 12 * dpr);

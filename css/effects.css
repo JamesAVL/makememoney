@@ -1,6 +1,13 @@
 /* ============ effects: keyframes, ceremonies, reduced motion ============ */
 
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ripple { to { transform: scale(2.6); opacity: 0; } }
+@keyframes sheen { from { transform: skewX(-22deg) translateX(-140%); } to { transform: skewX(-22deg) translateX(420%); } }
+@keyframes ready-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--money-glow); }
+  50% { box-shadow: 0 0 14px 1px var(--money-glow); }
+}
+@keyframes rim-spin { to { transform: rotate(360deg); } }
 @keyframes panel-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @keyframes card-pop { 0% { transform: scale(1); } 40% { transform: scale(1.035); } 100% { transform: scale(1); } }
 @keyframes badge-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
@@ -88,23 +95,39 @@
 .tier-slam.viral { color: var(--gold); text-shadow: 0 0 28px var(--gold-glow); font-size: 52px; }
 
 /* Pack Order button */
+.pack-wrap { position: relative; display: inline-block; }
+.pack-rim {
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0 40%, var(--money-glow) 50%, transparent 60% 100%);
+  animation: rim-spin 6s linear infinite;
+  pointer-events: none;
+  opacity: 0.8;
+}
 .pack-btn {
   width: 172px;
   height: 172px;
   border-radius: 50%;
-  background: radial-gradient(circle at 34% 30%, #34e893, var(--money-dim) 78%);
+  background: radial-gradient(circle at 34% 30%, color-mix(in srgb, var(--money) 70%, white), var(--money-dim) 78%);
   border: none;
-  color: #04220f;
+  color: var(--money-ink);
   font-size: 17px;
   font-weight: 800;
   letter-spacing: 0.03em;
-  box-shadow: 0 0 34px var(--money-glow), inset 0 2px 0 rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 34px var(--money-glow), inset 0 2px 0 rgba(255, 255, 255, 0.35), inset 0 -10px 22px rgba(0, 0, 0, 0.18);
   animation: breathe 3s ease-in-out infinite;
-  transition: transform 0.08s;
+  transition: transform 0.35s var(--spring), box-shadow 0.25s;
   user-select: none;
   touch-action: manipulation;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
 }
-.pack-btn:active { transform: scale(0.94); animation: none; }
+@media (hover: hover) {
+  .pack-btn:hover { box-shadow: 0 0 52px var(--money-glow), inset 0 2px 0 rgba(255, 255, 255, 0.4), inset 0 -10px 22px rgba(0,0,0,0.18); }
+}
+.pack-btn:active { transform: scale(0.92, 0.95); animation: none; transition-duration: 0.05s; }
 .pack-btn .sub { display: block; font-size: 11px; font-weight: 600; opacity: 0.75; font-family: var(--font-num); }
 .pack-ring {
   position: absolute;
@@ -139,6 +162,7 @@
   position: absolute;
   inset: 0;
   background: #05070b;
+  color: #e6eaf2; /* always light-on-dark, even in light theme */
   display: grid;
   place-items: center;
   pointer-events: auto;
@@ -148,7 +172,7 @@
   font-family: var(--font-num);
   font-size: 16px;
   line-height: 2.1;
-  color: var(--text-hi);
+  color: #e6eaf2;
   min-width: min(480px, 88vw);
 }
 .ceremony .tally .line { opacity: 0; }
@@ -159,7 +183,7 @@
   text-shadow: 0 0 20px var(--gold-glow);
   font-weight: 800;
 }
-.ceremony .boot-line { color: var(--text-lo); font-size: 13px; font-family: var(--font-num); }
+.ceremony .boot-line { color: #98a2b4; font-size: 13px; font-family: var(--font-num); }
 .ceremony .skip-hint { position: absolute; bottom: 22px; right: 26px; color: var(--text-dim); font-size: 11px; }
 
 /* Signature pad */

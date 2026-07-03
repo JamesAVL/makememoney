@@ -12,6 +12,8 @@ import { tickersFrame } from './ui/components/ticker.js';
 import { setShakeEnabled } from './ui/components/celebrate.js';
 import { showModal } from './ui/components/modal.js';
 import { unlockAudio, sChaChing } from './audio/synth.js';
+import { applyTheme } from './ui/theme.js';
+import { initRipples } from './ui/components/ripple.js';
 import { toast } from './ui/components/toast.js';
 import { dailyStandup } from './core/actions.js';
 import { OFFLINE_LINES, OFFLINE_FOOTNOTES, BOOT_LINES } from './data/flavor.js';
@@ -65,8 +67,10 @@ function boot() {
   setNotation(state.settings.notation);
   setParticlesEnabled(state.settings.particles);
   setShakeEnabled(state.settings.shake);
+  applyTheme(state.settings.theme || 'dark');
   unlockAudio(state.settings);
   initParticles();
+  initRipples();
 
   // --- Offline progress (computed before schedulers re-arm) ---
   let offlineReport = null;
@@ -88,6 +92,7 @@ function boot() {
   settings.mount(document.getElementById('panel-settings'), state);
   feed.mount(document.getElementById('feed'), state);
   goal.mount(document.getElementById('next-goal'), state);
+  goal.mount(document.getElementById('d-goal-mobile'), state);
   tickerbar.mount(document.getElementById('ticker'), state);
   moments.mount(null, state);
   onboard.init(state);

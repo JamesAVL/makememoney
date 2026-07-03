@@ -134,6 +134,7 @@ export function update(state, now) {
     const afford = state.run.cash >= cost;
     const buyBtn = card.querySelector('.p-buy');
     buyBtn.disabled = !afford;
+    buyBtn.classList.toggle('btn-ready', afford && count === 0);
     setText(card, '.p-buylabel', `Buy ×${qty === 'max' ? n : qty}`);
     setText(card, '.p-price', fmtCash(cost));
     card.querySelector('.p-under').style.width = `${Math.min(100, (state.run.cash / cost) * 100)}%`;

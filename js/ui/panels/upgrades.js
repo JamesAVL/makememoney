@@ -83,6 +83,7 @@ export function update(state, now) {
     const afford = state.run.cash >= u.cost;
     const btn = card.querySelector('.u-buy');
     btn.disabled = !afford;
+    btn.classList.toggle('btn-ready', afford);
     const priceEl = card.querySelector('.u-price');
     const priceStr = fmtCash(u.cost);
     if (priceEl.textContent !== priceStr) priceEl.textContent = priceStr;

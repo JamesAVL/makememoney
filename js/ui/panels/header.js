@@ -8,6 +8,7 @@ import { bus } from '../../core/bus.js';
 import { slam } from '../components/celebrate.js';
 import { setMuted } from '../../audio/synth.js';
 import { saveToStorage } from '../../core/save.js';
+import { applyTheme } from '../theme.js';
 
 let els = {};
 let state_ = null;
@@ -45,6 +46,7 @@ export function mount(root, state) {
     </div>
     <div class="kpi-right">
       <span class="kpi-invest num hidden" id="k-invest" title="Unspent investors: +4% income each">👤 0</span>
+      <button class="icon-btn" id="k-theme" title="Light/dark mode">🌙</button>
       <button class="icon-btn" id="k-mute" title="Sound on/off">🔊</button>
       <div class="save-dot" id="k-save" title="Autosaved locally"></div>
     </div>`;
@@ -70,6 +72,15 @@ export function mount(root, state) {
   root.querySelector('#logo').addEventListener('click', () => {
     state_.acct.stats.logoClicks++;
   });
+  const themeBtn = root.querySelector('#k-theme');
+  const themeIcon = () => { themeBtn.textContent = state_.settings.theme === 'light' ? '☀️' : '🌙'; };
+  themeBtn.addEventListener('click', () => {
+    state_.settings.theme = state_.settings.theme === 'light' ? 'dark' : 'light';
+    applyTheme(state_.settings.theme);
+    themeIcon();
+    saveToStorage(state_, Date.now());
+  });
+  themeIcon();
   els.mute.addEventListener('click', () => {
     state_.settings.muted = !state_.settings.muted;
     setMuted(state_.settings.muted);

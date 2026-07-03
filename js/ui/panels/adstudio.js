@@ -396,6 +396,7 @@ export function update(state, now) {
   if (els.energy.innerHTML !== pips) els.energy.innerHTML = pips;
 
   els.spin.disabled = state.run.energy < 1 || spinning || revealing;
+  els.spin.classList.toggle('btn-ready', !els.spin.disabled && !state.run.pendingAd);
 
   // Pity
   const pityPct = Math.min(100, (state.run.pity * BAL.PITY_VIRAL / 30) * 100);

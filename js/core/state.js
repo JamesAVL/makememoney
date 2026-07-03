@@ -91,7 +91,7 @@ export function createInitialState(now) {
     },
     settings: {
       volume: 0.5, muted: false, notation: 'short',
-      particles: true, shake: true,
+      particles: true, shake: true, theme: 'dark',
     },
     history: [],               // [simMs, cps] samples, 1 per 2s, capped 450
   };

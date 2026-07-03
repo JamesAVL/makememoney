@@ -6,17 +6,18 @@ import { PRODUCTS } from '../../data/products.js';
 import { nextMilestone, exitPreview, unitCost, getDerived } from '../../core/balance.js';
 import { fmtCash, fmtInt } from '../fmt.js';
 
-let el = null;
+const els = [];
 
 export function mount(root, state) {
-  el = document.createElement('div');
+  const el = document.createElement('div');
   el.className = 'goal-card';
   el.innerHTML = `
     <div class="g-label">Next goal</div>
-    <div class="g-text" id="g-text"></div>
-    <div class="bar"><div class="bar-fill" id="g-fill"></div></div>
-    <div class="g-far" id="g-far"></div>`;
+    <div class="g-text"></div>
+    <div class="bar"><div class="bar-fill"></div></div>
+    <div class="g-far"></div>`;
   root.appendChild(el);
+  els.push(el);
 }
 
 function computeGoal(state) {
@@ -82,11 +83,13 @@ export function update(state, now) {
   lastCheck = now;
   const g = computeGoal(state);
   const pct = Math.min(100, (g.num / g.den) * 100);
-  const textEl = el.querySelector('#g-text');
-  if (textEl.textContent !== g.text) textEl.textContent = g.text;
-  el.querySelector('#g-fill').style.width = pct + '%';
-  el.classList.toggle('near', pct >= 85);
-  const farEl = el.querySelector('#g-far');
   const far = farGoal(state);
-  if (farEl.textContent !== far) farEl.textContent = far;
+  for (const el of els) {
+    const textEl = el.querySelector('.g-text');
+    if (textEl.textContent !== g.text) textEl.textContent = g.text;
+    el.querySelector('.bar-fill').style.width = pct + '%';
+    el.classList.toggle('near', pct >= 85);
+    const farEl = el.querySelector('.g-far');
+    if (farEl.textContent !== far) farEl.textContent = far;
+  }
 }
