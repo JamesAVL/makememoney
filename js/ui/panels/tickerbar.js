@@ -6,6 +6,8 @@ import { TAGS_BY_ID } from '../../data/ads.js';
 import { bus } from '../../core/bus.js';
 
 let track = null;
+let bar = null;
+let state_ = null;
 
 function shuffle(arr) {
   const a = [...arr];
@@ -16,9 +18,14 @@ function shuffle(arr) {
   return a;
 }
 
-export function mount(root) {
+export function mount(root, state) {
+  state_ = state;
   track = document.getElementById('ticker-track');
+  bar = document.getElementById('ticker');
   rebuild();
+  // Diegetic: the market feed comes bundled with the Ad Studio rig.
+  applyVisibility();
+  bus.on('story:ack', applyVisibility);
   bus.on('wave:foreshadow', ({ tag }) => {
     const label = TAGS_BY_ID[tag]?.label || tag;
     inject(`📡 BREAKING: ${label} engagement up 400% among people with wallets`);
@@ -29,8 +36,12 @@ export function mount(root) {
   });
 }
 
+function applyVisibility() {
+  if (bar) bar.classList.toggle('hidden', !state_.story.unlocks.adstudio);
+}
+
 function rebuild() {
-  const jokes = shuffle(TICKER_JOKES).slice(0, 12);
+  const jokes = shuffle(TICKER_JOKES).slice(0, 8);
   track.innerHTML = jokes.map((j) => `<span>${j}</span>`).join('');
 }
 

@@ -3,6 +3,7 @@
 
 import { totalCps, clickValue, tempMult, comebackMult, BAL } from '../../core/balance.js';
 import { packOrder, postAd } from '../../core/actions.js';
+import { VA_LEVELS } from '../../data/prestige.js';
 import { fmt, fmtCash, fmtInt } from '../fmt.js';
 import { createChart } from '../components/chart.js';
 import { floatNum, shake } from '../components/celebrate.js';
@@ -134,7 +135,7 @@ export function update(state, now) {
   const pv = `+${fmtCash(cv)}`;
   if (els.packval.textContent !== pv) els.packval.textContent = pv;
 
-  const showPost = state.acct.level >= 2;
+  const showPost = !!state.story.unlocks.postad;
   els.post.classList.toggle('hidden', !showPost);
   if (showPost) {
     const gain = 1 + BAL.POST_F_COEF * state.run.followers;
@@ -156,38 +157,48 @@ export function update(state, now) {
   const vibe = temp.value * comebackMult(state);
   els.vibes.textContent = vibe > 1.05 ? `×${vibe.toFixed(1)} 🔥` : 'immaculate';
 
-  // Active effect chips
-  let chips = '';
+  // Active effect chips — consolidated (noise diet): campaigns collapse to
+  // one summary chip; row capped at 3 + overflow counter.
+  const chipList = [];
   const t = state.sim.timeMs;
-  for (const c of state.run.campaigns) {
+  if (state.run.campaigns.length === 1) {
+    const c = state.run.campaigns[0];
     const secs = Math.max(0, Math.ceil((c.endMs - t) / 1000));
-    chips += `<span class="chip hot">🎬 ${c.outcome.toUpperCase()} ${secs}s</span>`;
+    chipList.push(`<span class="chip hot">🎬 ${c.outcome.toUpperCase()} ${secs}s</span>`);
+  } else if (state.run.campaigns.length > 1) {
+    let best = state.run.campaigns[0];
+    for (const c of state.run.campaigns) if (c.mult > best.mult) best = c;
+    const secs = Math.max(0, Math.ceil((best.endMs - t) / 1000));
+    chipList.push(`<span class="chip hot">🎬 ${state.run.campaigns.length} campaigns · best ${best.outcome.toUpperCase()} ${secs}s</span>`);
   }
-  if (state.run.fbSlot) chips += `<span class="chip warm">👴 FaceSpace ×${state.run.fbSlot.mult}</span>`;
   if (state.sim.buffEndMs > t) {
-    chips += `<span class="chip hot">✨ ${state.sim.buffLabel} ${Math.ceil((state.sim.buffEndMs - t) / 1000)}s</span>`;
-  }
-  if (state.sim.comebackEndMs > t) {
-    chips += `<span class="chip warm">💚 The algorithm missed you ×2</span>`;
+    chipList.push(`<span class="chip hot">✨ ${state.sim.buffLabel} ${Math.ceil((state.sim.buffEndMs - t) / 1000)}s</span>`);
   }
   if (state.sim.waveTag) {
-    chips += `<span class="chip hot">🌊 ${TAGS_BY_ID[state.sim.waveTag].label} surging</span>`;
+    chipList.push(`<span class="chip hot">🌊 ${TAGS_BY_ID[state.sim.waveTag].label} surging</span>`);
   }
-  if (temp.capped) chips += `<span class="chip hot">⚠ ALGORITHM SATURATED</span>`;
+  if (temp.capped) chipList.push(`<span class="chip hot">⚠ ALGORITHM SATURATED</span>`);
+  if (state.run.fbSlot) chipList.push(`<span class="chip warm">👴 FaceSpace ×${state.run.fbSlot.mult}</span>`);
+  if (state.sim.comebackEndMs > t) {
+    chipList.push(`<span class="chip warm">💚 The algorithm missed you ×2</span>`);
+  }
+  let chips = chipList.slice(0, 3).join('');
+  if (chipList.length > 3) chips += `<span class="chip">+${chipList.length - 3}</span>`;
   if (els.buffs.innerHTML !== chips) els.buffs.innerHTML = chips;
 
-  // VA roster — the sim runs these from Lv 8/12/18/25; show the "team"
+  // VA roster — levels from VA_LEVELS; visible once the standup lesson lands
   const lv = state.acct.level;
-  els.team.classList.toggle('hidden', lv < 8);
-  if (lv >= 8) {
+  const showTeam = state.story.unlocks.standup && lv >= VA_LEVELS.autopacker;
+  els.team.classList.toggle('hidden', !showTeam);
+  if (showTeam) {
     const spin = ['…', '…', '…', ''][Math.floor(now / 500) % 4];
     let team = `🤖 <b>Brayden</b> (Auto-Packer) — packing 2 orders/sec${spin}`;
-    if (lv >= 12) team += `<br>🧢 <b>The Intern</b> — posting an ad every 5s. Morale: "content"${spin}`;
-    else team += `<br class="muted"><span class="muted">🔒 Lv 12: an intern appears</span>`;
-    if (lv >= 18) team += `<br>📋 <b>Campaign Manager</b> — auto-launching at 60% power when you're idle${spin}`;
-    else if (lv >= 12) team += `<br><span class="muted">🔒 Lv 18: a campaign manager appears</span>`;
-    if (lv >= 25) team += `<br>📡 <b>Trend Watcher</b> — catching Viral Moments at 50% value${spin}`;
-    else if (lv >= 18) team += `<br><span class="muted">🔒 Lv 25: a trend watcher appears</span>`;
+    if (lv >= VA_LEVELS.intern) team += `<br>🧢 <b>The Intern</b> — posting an ad every 5s. Morale: "content"${spin}`;
+    else team += `<br class="muted"><span class="muted">🔒 Lv ${VA_LEVELS.intern}: an intern appears</span>`;
+    if (lv >= VA_LEVELS.campaignmgr) team += `<br>📋 <b>Campaign Manager</b> — auto-launching at 60% power when you're idle${spin}`;
+    else if (lv >= VA_LEVELS.intern) team += `<br><span class="muted">🔒 Lv ${VA_LEVELS.campaignmgr}: a campaign manager appears</span>`;
+    if (lv >= VA_LEVELS.trendwatcher) team += `<br>📡 <b>Trend Watcher</b> — catching Viral Moments at 50% value${spin}`;
+    else if (lv >= VA_LEVELS.campaignmgr) team += `<br><span class="muted">🔒 Lv ${VA_LEVELS.trendwatcher}: a trend watcher appears</span>`;
     if (els.teamList.innerHTML !== team) els.teamList.innerHTML = team;
   }
 }

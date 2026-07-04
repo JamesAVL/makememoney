@@ -24,6 +24,8 @@ import { unlockAudio, sChaChing } from './audio/synth.js';
 import { applyTheme } from './ui/theme.js';
 import { initRipples } from './ui/components/ripple.js';
 import { toast } from './ui/components/toast.js';
+import { initDM, openInbox } from './ui/components/dm.js';
+import { isModalOpen } from './ui/components/modal.js';
 import { dailyStandup } from './core/actions.js';
 import { OFFLINE_LINES, OFFLINE_FOOTNOTES, BOOT_LINES } from './data/flavor.js';
 
@@ -68,7 +70,22 @@ window.addEventListener('pagehide', () => {
 
 function boot() {
   // --- Load or create ---
+  // A raw save that fails to load is a HustleOS 4.x (schema v1) or corrupt
+  // save — the 5.0 reset retires it (remove both slots or the next autosave
+  // copies the dead blob into BAK forever). A courtesy graveyard copy stays.
+  let wiped = false;
   const loaded = loadFromStorage(now);
+  if (!loaded) {
+    try {
+      const old = localStorage.getItem('shiphappens.save');
+      if (old) {
+        localStorage.setItem('shiphappens.save.v1.graveyard', old);
+        localStorage.removeItem('shiphappens.save');
+        localStorage.removeItem('shiphappens.save.bak');
+        wiped = true;
+      }
+    } catch { /* private mode */ }
+  }
   const state = loaded ? loaded.state : createInitialState(now);
   const isFresh = !loaded;
   const awayMs = loaded ? Math.max(0, now - (loaded.savedAt || state.meta.lastSeen)) : 0;
@@ -133,6 +150,7 @@ function boot() {
   initDrawer();
   tickerbar.mount(document.getElementById('ticker'), state);
   moments.mount(null, state);
+  initDM(state);
   onboard.init(state);
 
   // All panels self-throttle; run them every frame for simplicity + liveness.
@@ -166,6 +184,18 @@ function boot() {
     nav.switchTab(wantTab);
   }
 
+  // --- HustleOS 4.x save retired: one-time notice, in character ---
+  if (wiped) {
+    setTimeout(() => showModal({
+      title: 'HustleOS™ v5.0 — “The Mentorship Update”',
+      body: '<div class="muted">Your previous empire was liquidated in a routine platform migration. '
+        + 'Assets: gone. Lessons: repriced. A mentor has been assigned to your account. '
+        + 'He found you himself.</div>',
+      dismissible: false,
+      actions: [{ label: 'ACCEPT MENTORSHIP' }],
+    }), 1900);
+  }
+
   // --- iOS standalone keeps a separate save from the Safari tab ---
   if (isFresh && standalone && !offlineReport) {
     showModal({
@@ -190,6 +220,8 @@ function boot() {
       }));
     } else if (e.key === 'e' || e.key === 'E') {
       document.getElementById('a-spin')?.click();
+    } else if (e.key === 'i' || e.key === 'I') {
+      if (!isModalOpen()) openInbox();
     } else if (e.key >= '1' && e.key <= '8') {
       const tabs = nav.TABS;
       const t = tabs[Number(e.key) - 1];
@@ -269,12 +301,12 @@ function boot() {
     splash.innerHTML = `
       <div style="text-align:center">
         <div class="kpi-logo" style="align-items:center"><span class="brand" style="font-size:30px">HustleOS™</span>
-        <span class="ver">v4.2.0 “Sigma Update”</span></div>
+        <span class="ver">v5.0.0 “The Mentorship Update”</span></div>
         <div class="boot-line" id="b-line" style="margin-top:18px">Loading your empire…</div>
         <div class="bar" style="width:240px;margin:12px auto 0"><div class="bar-fill" id="b-bar"></div></div>
       </div>`;
     document.getElementById('ceremony-root').appendChild(splash);
-    const lines = ['Loading your empire…', BOOT_LINES[0], BOOT_LINES[7], 'Empire not found. Starting from $0…'];
+    const lines = ['Loading your empire…', BOOT_LINES[0], 'Assigning mentor…', 'Empire not found. Starting from $0…'];
     lines.forEach((l, i) => setTimeout(() => {
       splash.querySelector('#b-line').textContent = l;
       splash.querySelector('#b-bar').style.width = `${((i + 1) / lines.length) * 100}%`;

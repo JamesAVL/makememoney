@@ -23,18 +23,20 @@ export function mount(root, state) {
   bus.on('moment:expire', remove);
   bus.on('moment:reward', (r) => {
     if (r.auto && r.kind !== 'mega') return; // quiet for VA catches
+    // Noise diet: rewards downgraded one notch; MEGA keeps the full ceremony
+    // (it's 5% of a rare event).
     if (r.kind === 'frenzy') {
       slam(`🔥 SALES FRENZY ×${r.mult.toFixed(0)}`);
       sHit();
-      confetti(40);
+      confetti(24);
     } else if (r.kind === 'storm') {
       slam(`👁 FOLLOWER STORM +${fmtInt(r.followers)}`);
       sHit();
     } else if (r.kind === 'whale') {
       slam(`🐋 WHALE ORDER +${fmtCash(r.cash)}`);
       sViral();
-      confetti(80);
-      shake(2);
+      confetti(40);
+      shake(1);
     } else if (r.kind === 'mega') {
       slam(`🌋 MEGA-VIRAL ×${r.mult.toFixed(0)}`, true);
       sViral();

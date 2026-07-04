@@ -16,8 +16,14 @@ let lastEntry = 0;
 let floodUntil = 0;
 let pendingRollup = 0;
 let rateEl = null;
+let lastChaChing = 0;
 
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+// Story moment: Chase reframes a bad review as reach — flood a few in.
+export function injectReviews(n) {
+  for (let i = 0; i < n; i++) addEntry(pick(REVIEWS), 'review');
+}
 
 export function mount(root, state) {
   root_ = root;
@@ -66,10 +72,11 @@ export function update(state, now) {
   const owned = ownedProductNames(state);
   if (!owned.length && !state.acct.stats.totalClicks) return;
 
-  // Order cadence scales with log income; flood mode runs 5×.
+  // Order cadence scales with log income; flood mode runs 3×. (Noise diet:
+  // floor raised 450→900ms.)
   const flood = now < floodUntil;
-  let interval = cps <= 0 ? Infinity : Math.max(450, 4200 - Math.log10(cps + 1) * 560);
-  if (flood) interval /= 5;
+  let interval = cps <= 0 ? Infinity : Math.max(900, 4200 - Math.log10(cps + 1) * 560);
+  if (flood) interval /= 3;
 
   if (rateEl) {
     const str = cps > 0 ? `${Math.min(99, (1000 / interval)).toFixed(1)}/s` : '';
@@ -90,7 +97,8 @@ export function update(state, now) {
   const p = pick(owned);
   const qty = 1 + Math.floor(Math.random() * 3);
   const price = p.baseCost * 2.5 * qty * (0.9 + Math.random() * 0.2);
-  const isReview = Math.random() < 0.08;
+  // Reviews get more visible once Chase has made his point about them.
+  const isReview = Math.random() < (state.story.acked.lesson_review ? 0.12 : 0.08);
   if (isReview) {
     addEntry(pick(REVIEWS), 'review');
   } else {
@@ -98,6 +106,11 @@ export function update(state, now) {
       `<span class="who">${pick(CUSTOMER_NAMES)}</span> bought ${p.icon} ${p.name} ×${qty} — <span class="amt">${fmtCash(price)}</span>`,
       flood ? 'hot' : '',
     );
-    if (state.settings && !state.settings.muted) sChaChing(false);
+    // Noise diet: cha-ching only after the Ad Studio lesson, ≤1 per 4s.
+    if (state.settings && !state.settings.muted
+      && state.story.unlocks.adstudio && now - lastChaChing >= 4000) {
+      lastChaChing = now;
+      sChaChing(false);
+    }
   }
 }

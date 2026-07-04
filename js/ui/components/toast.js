@@ -1,9 +1,10 @@
-// Achievement/unlock toasts: queued, max 3 visible, auto-dismiss.
+// Achievement/unlock toasts: queued, ONE visible at a time (noise diet —
+// the queue drains sequentially), auto-dismiss.
 // Options: ms (visible duration), onClick (tap action; also dismisses).
 
 const queue = [];
 let visible = 0;
-const MAX_VISIBLE = 3;
+const MAX_VISIBLE = 1;
 
 export function toast({ icon = '🏆', name, sub = '', tone = '', ms = 4000, onClick = null }) {
   queue.push({ icon, name, sub, tone, ms, onClick });

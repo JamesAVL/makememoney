@@ -1,5 +1,5 @@
 // The juice toolbox: floating numbers, screen shake, white flash, tier slams,
-// and the celebration queue (min 4s spacing so ceremonies never pile up).
+// and the celebration queue (min 8s spacing so ceremonies never pile up).
 
 import { confetti, goldRain } from './particles.js';
 import { toast } from './toast.js';
@@ -71,7 +71,7 @@ export function celebrate(fn, weight = 1) {
 
 function drain() {
   if (draining || !queue.length) return;
-  const wait = Math.max(0, lastCelebration + 4000 - performance.now());
+  const wait = Math.max(0, lastCelebration + 8000 - performance.now());
   draining = true;
   setTimeout(() => {
     const item = queue.shift();
@@ -87,7 +87,7 @@ function drain() {
 export function celebrateUnlock({ icon, name, sub, big = false }) {
   celebrate(() => {
     toast({ icon, name: `NEW: ${name}`, sub, tone: 'data' });
-    if (big) confetti(60);
+    if (big) confetti(24);
   });
 }
 

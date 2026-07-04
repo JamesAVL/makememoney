@@ -4,9 +4,13 @@
 
 import { PRODUCTS } from '../../data/products.js';
 import { nextMilestone, exitPreview, unitCost, getDerived } from '../../core/balance.js';
+import { nextGatingBeat } from '../../core/story.js';
+import { openDM } from '../components/dm.js';
+import { isModalOpen } from '../components/modal.js';
 import { fmtCash, fmtInt } from '../fmt.js';
 
 const els = [];
+let unreadBeatId = null;
 
 export function mount(root, state) {
   const el = document.createElement('div');
@@ -16,6 +20,9 @@ export function mount(root, state) {
     <div class="g-text"></div>
     <div class="bar"><div class="bar-fill"></div></div>
     <div class="g-far"></div>`;
+  el.addEventListener('click', () => {
+    if (unreadBeatId && !isModalOpen()) openDM(unreadBeatId);
+  });
   root.appendChild(el);
   els.push(el);
 }
@@ -24,10 +31,17 @@ function computeGoal(state) {
   const r = state.run;
   const d = getDerived(state);
 
-  // 1. Tab unlocks (cash-gated FTUE beats)
-  if (!state.ftue.unlocks.products) return { text: 'Something unlocks at $10 seen', num: r.lifetimeCash, den: 10 };
-  if (!state.ftue.unlocks.adstudio) return { text: 'Something big unlocks at $50 seen', num: r.lifetimeCash, den: 50 };
-  if (!state.ftue.unlocks.upgrades) return { text: 'Upgrades unlock at $250 seen', num: r.lifetimeCash, den: 250 };
+  // 0/1. The story is the tutorial: an unread DM, or the next lesson's gate.
+  unreadBeatId = null;
+  const g = nextGatingBeat(state);
+  if (g && g.delivered) {
+    unreadBeatId = g.beat.id;
+    return { text: '📩 New DM from Chase Margin — tap to read', num: 1, den: 1 };
+  }
+  if (g && g.beat.teaser) {
+    const [num, den] = g.beat.progress ? g.beat.progress(state) : [0, 1];
+    return { text: g.beat.teaser, num, den };
+  }
 
   // 2. Next locked product (the ladder is the tutorial)
   for (const p of PRODUCTS) {
@@ -48,7 +62,7 @@ function computeGoal(state) {
   }
 
   // 3. Exit readiness
-  if (state.acct.level >= 10) {
+  if (state.story.unlocks.exit && state.acct.level >= 10) {
     const p = exitPreview(state);
     if (p.ratio < 2) {
       return { text: `Grow your exit offer to ×2 (now ×${p.ratio.toFixed(2)})`, num: p.ratio, den: 2 };
@@ -71,7 +85,8 @@ function computeGoal(state) {
 }
 
 function farGoal(state) {
-  if (state.acct.level < 10) return `Someday: 🧘 Guru Mode (Lv 10 — you're Lv ${state.acct.level})`;
+  if (!state.story.unlocks.levels) return 'Someday: 🎓 the rest of the Blueprint';
+  if (state.acct.level < 10) return `Someday: 🧘 Lesson 7 (Lv 10 — you're Lv ${state.acct.level})`;
   if (!state.acct.exits) return 'Someday: 🚪 your first Exit';
   if (state.acct.exits < 5) return 'Someday: 📚 Serial Entrepreneur (5 exits)';
   return 'Someday: 🌌 $1aa lifetime. Post-economic.';

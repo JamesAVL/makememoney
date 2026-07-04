@@ -46,7 +46,8 @@ function moveIndicator(btn) {
 }
 
 export function switchTab(id) {
-  if (!btns[id] || btns[id].classList.contains('locked')) return;
+  // Hidden tabs are as unreachable as locked ones (?tab= deep links degrade).
+  if (!btns[id] || btns[id].classList.contains('locked') || btns[id].classList.contains('hidden')) return;
   const oldIdx = TABS.findIndex((t) => t.id === active);
   const newIdx = TABS.findIndex((t) => t.id === id);
   const stage = document.getElementById('stage');
@@ -96,7 +97,9 @@ export function mount(root, state) {
 
 function isUnlocked(state, id) {
   const t = TABS.find((x) => x.id === id);
-  return t.always || state.ftue.unlocks[id];
+  if (t.always) return true;
+  // Chase's DMs grant tabs; the guru tab rides the 'exit' lesson flag.
+  return !!state.story.unlocks[id === 'guru' ? 'exit' : id];
 }
 
 let visSig = '';
@@ -145,7 +148,9 @@ function setBadge(b, on) {
 let lastBadgeCheck = 0;
 function updateBadge(state, id, b) {
   // Badge checks are cheap but run at most 2×/sec across the rail.
+  // Silent until Chase introduces Conversion Tools (noise diet).
   const now = performance.now();
+  if (!state.story.unlocks.upgrades) { setBadge(b, false); return; }
   if (id === 'dashboard' || id === 'settings' || id === active) { setBadge(b, false); return; }
   if (now - lastBadgeCheck < 500 && b.dataset.badgeKnown) {
     return;

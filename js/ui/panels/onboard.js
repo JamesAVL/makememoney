@@ -1,66 +1,103 @@
-// Progressive-disclosure orchestrator: tab unlocks (every unlock is a
-// celebration, each introduces exactly one mechanic), wave banners,
-// achievement/level toasts, confetti thresholds. No text box ever blocks input.
+// Celebration orchestrator, v5: unlocks are granted by Chase's DMs
+// (js/core/story.js is the only unlock writer) — this file just listens and
+// celebrates, on a strict noise diet. No text box ever blocks input.
 
 import { bus } from '../../core/bus.js';
-import { celebrateUnlock, celebrateConfetti, slam } from '../components/celebrate.js';
+import { celebrateUnlock, celebrateConfetti, celebrate, slam } from '../components/celebrate.js';
 import { toast } from '../components/toast.js';
+import { deliverDM } from '../components/dm.js';
 import { sUnlock, sToast, sLevelUp, sWave, sHit } from '../../audio/synth.js';
 import { TAGS_BY_ID } from '../../data/ads.js';
 import { PRODUCTS_BY_ID } from '../../data/products.js';
 import { LEVEL_UNLOCKS } from '../../data/prestige.js';
-import { fmtCash } from '../fmt.js';
+import { BEATS_BY_ID } from '../../data/story.js';
+import { injectReviews } from './feed.js';
 
 let state_ = null;
 
-const TAB_UNLOCKS = [
-  { id: 'products', gate: (s) => s.run.lifetimeCash >= 10, icon: '📦', name: 'Products', sub: 'Buy stuff to sell stuff. The stuff is bad. The margins are beautiful.' },
-  { id: 'adstudio', gate: (s) => s.run.lifetimeCash >= 50, icon: '🎬', name: 'Ad Studio', sub: 'Spin up a viral video. What could go wrong (statistically, a lot).', big: true },
-  { id: 'upgrades', gate: (s) => s.run.lifetimeCash >= 250, icon: '⬆️', name: 'Upgrades', sub: 'Fake countdown timers. Real money.' },
-  { id: 'trends', gate: (s) => s.run.lifetimeCash >= 1500 || s.acct.stats.totalLaunches >= 3, icon: '📈', name: 'Trends', sub: 'Read the algorithm. Ride the wave.' },
-  { id: 'guru', gate: (s) => s.acct.level >= 10, icon: '🧘', name: 'Guru Mode', sub: 'Blandrock Capital has entered the chat.', big: true },
-  { id: 'flexes', gate: (s) => Object.keys(s.acct.achievements).length >= 1, icon: '🏆', name: 'Flexes', sub: 'Achievements. Each one pays +1% income. Flexing is fiscal policy.' },
-];
+// What each gating beat reveals, for the post-ACK celebration toast.
+const UNLOCK_CELEBRATIONS = {
+  products: { icon: '📦', name: 'Products', sub: 'Buy stuff to sell stuff. The stuff is bad. The margins are beautiful.' },
+  adstudio: { icon: '🎬', name: 'Ad Studio', sub: 'Spin up a viral video. What could go wrong (statistically, a lot).', big: true },
+  upgrades: { icon: '⬆️', name: 'Upgrades', sub: 'Conversion Tools. Fake countdown timers. Real money.' },
+  postad: { icon: '📣', name: 'POST AD', sub: 'Followers are pre-customers. Start posting.' },
+  instaglam: { icon: '📸', name: 'Instaglam', sub: 'Pays followers, not cash. Post pretty, harvest later.' },
+  hype: { icon: '🔥', name: 'Hype', sub: 'Performed enthusiasm, monetized. It decays when you rest.' },
+  trends: { icon: '📈', name: 'Trends', sub: 'The algorithm has weather. Sell the weather.' },
+  facespace: { icon: '👴', name: 'FaceSpace', sub: 'One eternal ad slot. Nana trusts you.' },
+  flexes: { icon: '🏆', name: 'Flexes', sub: 'Each one pays +1% income. Flexing is fiscal policy.' },
+  levels: { icon: '⬆️', name: 'Hustler Levels', sub: 'The grind now has a number. It only goes up.' },
+  standup: { icon: '🌅', name: 'Daily Standup', sub: 'Show up daily: streak bonus + a guaranteed HIT.' },
+  exit: { icon: '🧘', name: 'Guru Mode', sub: 'Blandrock Capital has entered the chat.', big: true },
+};
 
+// Noise rule 4: $1K/$100K parties demoted to plain toasts; big three halved.
 const CASH_CONFETTI = [
-  [1e3, 60, '$1K! Technically an entrepreneur.'],
-  [1e5, 100, '$100K! Six figures (real ones).'],
-  [1e6, 180, '$1M! The garage is now “HQ”.'],
-  [1e9, 220, '$1B! Unicorn-adjacent.'],
-  [1e12, 250, '$1T! Nations return your calls.'],
+  [1e3, 0, '$1K! Technically an entrepreneur.'],
+  [1e5, 0, '$100K! Six figures (real ones).'],
+  [1e6, 90, '$1M! The garage is now “HQ”.'],
+  [1e9, 120, '$1B! Unicorn-adjacent.'],
+  [1e12, 140, '$1T! Nations return your calls.'],
 ];
 
 export function init(state) {
   state_ = state;
   if (!state.ftue.cashParty) state.ftue.cashParty = {};
 
+  // --- Story: deliveries surface as DMs; grants celebrate on ACK ---
+  bus.on('story:beat', ({ id }) => {
+    deliverDM(id, toast);
+  });
+  bus.on('story:ack', ({ id }) => {
+    const beat = BEATS_BY_ID[id];
+    if (!beat) return;
+    if (beat.unlocks && UNLOCK_CELEBRATIONS[beat.unlocks]) {
+      const c = UNLOCK_CELEBRATIONS[beat.unlocks];
+      celebrateUnlock({ ...c, big: beat.celebrate === 'big' });
+      sUnlock();
+    }
+    if (id === 'flexes_intro') {
+      const n = Object.keys(state_.acct.achievements).length;
+      if (n) toast({ icon: '🏆', name: `${n} Flexes already banked`, sub: 'Chase kept receipts. +1% income each.', tone: 'gold' });
+    }
+    if (id === 'lesson_review') injectReviews(3);
+  });
+
+  // Noise rule 12: achievements accrue silently until Chase reveals Flexes.
   bus.on('achievement', (a) => {
+    if (!state_.story.unlocks.flexes) return;
     sToast();
     toast({ icon: a.icon, name: a.name, sub: `${a.desc} (+1% income)`, tone: 'gold' });
   });
 
+  // Noise rule 6: level toasts only after levels_intro, and only for levels
+  // that unlock something (or every 5th). The XP bar pulse covers the rest.
   bus.on('level:up', ({ level }) => {
-    // Levels 1–5 are silent (the XP bar is enough) — the level SYSTEM gets
-    // its reveal at 6. After that, toast every level; big ones celebrate.
-    if (level < 6) return;
-    sLevelUp();
+    if (!state_.story.unlocks.levels) return;
     const unlock = LEVEL_UNLOCKS[level];
+    if (!unlock && level % 5 !== 0) return;
+    sLevelUp();
     toast({
       icon: '🆙',
       name: `Hustler Level ${level}`,
       sub: unlock ? `UNLOCKED: ${unlock.label} — ${unlock.desc}` : '+1% income, +1 perk point',
       tone: 'data',
     });
-    if (unlock) celebrateConfetti(40);
+    if (unlock) celebrateConfetti(24);
   });
 
+  // Noise rule 13: product unlocks flow through the celebration queue.
   bus.on('product:unlock', ({ id }) => {
     const p = PRODUCTS_BY_ID[id];
-    sUnlock();
-    toast({ icon: p.icon, name: `New product: ${p.name}`, sub: p.desc });
+    celebrate(() => {
+      sUnlock();
+      toast({ icon: p.icon, name: `New product: ${p.name}`, sub: p.desc });
+    });
   });
 
-  bus.on('milestone', ({ id, count }) => {
+  // Noise rule 11: only the first two milestones per product get a toast.
+  bus.on('milestone', ({ id, count, hits }) => {
+    if (hits > 2) return;
     const p = PRODUCTS_BY_ID[id];
     toast({ icon: p.icon, name: `${p.name} ×2`, sub: `${count} owned — income doubled. “${p.milestoneName}”` });
     sHit();
@@ -84,19 +121,16 @@ export function update(state, now) {
   if (now - lastCheck < 500) return;
   lastCheck = now;
 
-  for (const t of TAB_UNLOCKS) {
-    if (state.ftue.unlocks[t.id] || !t.gate(state)) continue;
-    state.ftue.unlocks[t.id] = true;
-    celebrateUnlock({ icon: t.icon, name: t.name, sub: t.sub, big: t.big });
-    sUnlock();
-  }
-
   for (const [threshold, count, msg] of CASH_CONFETTI) {
     const key = String(threshold);
     if (!state.ftue.cashParty[key] && state.acct.lifetimeAllTime >= threshold) {
       state.ftue.cashParty[key] = true;
-      celebrateConfetti(count, threshold >= 1e6);
-      slam(`💰 ${msg}`);
+      if (count) {
+        celebrateConfetti(count, threshold >= 1e6);
+        slam(`💰 ${msg}`);
+      } else {
+        toast({ icon: '💰', name: msg, tone: 'gold' });
+      }
     }
   }
 

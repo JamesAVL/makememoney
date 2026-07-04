@@ -253,6 +253,8 @@ function refreshOdds() {
     els.shifts.textContent = '';
     return;
   }
+  // Boost spends Hype — invisible until Chase introduces the yellow bar.
+  els.boost.classList.toggle('hidden', !state_.story.unlocks.hype);
   const canBoost = state_.run.hype >= BAL.BOOST_HYPE_COST;
   if (boost && !canBoost) boost = false;
   els.boost.classList.toggle('btn-hype', boost);
@@ -413,7 +415,7 @@ export function update(state, now) {
     b.disabled = !unlocked;
     const desc = b.querySelector('.a-pdesc');
     if (!unlocked) {
-      desc.textContent = `🔒 ${fmtCash(p.unlock.cashSeen)} seen`;
+      desc.textContent = '🔒 Chase hasn’t mentioned this one yet';
       if (selectedPlatform === p.id) selectedPlatform = 'clikclok';
     } else {
       desc.textContent = p.blurb.split('.')[0];

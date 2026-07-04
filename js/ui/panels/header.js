@@ -10,10 +10,11 @@ import { slam } from '../components/celebrate.js';
 import { setMuted } from '../../audio/synth.js';
 import { saveToStorage } from '../../core/save.js';
 import { applyTheme } from '../theme.js';
+import { openInbox, unreadStory } from '../components/dm.js';
+import { isModalOpen } from '../components/modal.js';
 
 let els = {};
 let state_ = null;
-let lastHypeTier = 0;
 let saveFlashUntil = 0;
 
 const HYPE_TIERS = [
@@ -27,7 +28,7 @@ export function mount(root, state) {
   root.innerHTML = `
     <div class="kpi-logo" id="logo" title="HustleOS™ — definitely checking for updates">
       <span class="brand">HustleOS™</span>
-      <span class="ver">v4.2.0 “Sigma”</span>
+      <span class="ver">v5.0.0 “Mentorship”</span>
     </div>
     <div class="kpi-cash">
       <span class="val num" id="k-cash">$0</span>
@@ -47,6 +48,7 @@ export function mount(root, state) {
     </div>
     <div class="kpi-right">
       <span class="kpi-invest num hidden" id="k-invest" title="Unspent investors: +4% income each">👤 0</span>
+      <button class="icon-btn" id="k-inbox" title="Mentorship inbox (i)">📩<span class="inbox-count hidden" id="k-unread"></span></button>
       <button class="icon-btn" id="k-theme" title="Light/dark mode">🌙</button>
       <button class="icon-btn" id="k-mute" title="Sound on/off">🔊</button>
       <div class="save-dot" id="k-save" title="Autosaved locally"></div>
@@ -65,7 +67,14 @@ export function mount(root, state) {
     invest: root.querySelector('#k-invest'),
     mute: root.querySelector('#k-mute'),
     save: root.querySelector('#k-save'),
+    unread: root.querySelector('#k-unread'),
+    hypeWrap: root.querySelector('.kpi-hype'),
+    xpWrap: root.querySelector('.kpi-xp'),
   };
+
+  root.querySelector('#k-inbox').addEventListener('click', () => {
+    if (!isModalOpen()) openInbox();
+  });
 
   createOdometer(els.cash, () => state_.run.cash, fmtCash);
   createTicker(els.followers, () => state_.run.followers, (n) => fmtInt(n));
@@ -104,6 +113,10 @@ export function update(state, now) {
     els.rate.classList.toggle('saturated', temp.capped);
   }
 
+  // Meters stay hidden until Chase introduces their systems.
+  els.hypeWrap.classList.toggle('hidden', !state.story.unlocks.hype);
+  els.xpWrap.classList.toggle('hidden', !state.story.unlocks.levels);
+
   const d = getDerived(state);
   const hypePct = Math.min(100, (state.run.hype / d.hypeMax) * 100);
   els.hypefill.style.width = hypePct + '%';
@@ -112,23 +125,30 @@ export function update(state, now) {
   const hmStr = hm > 1.01 ? `×${hm.toFixed(2)}` : '';
   if (els.hypemult.textContent !== hmStr) els.hypemult.textContent = hmStr;
 
-  // Hype tier slams
-  let tier = 0;
+  // Hype tier slams — once per account each (noise diet).
   for (const [threshold, name] of HYPE_TIERS) {
-    if (state.run.hype >= threshold) { tier = threshold; break; }
+    if (state.run.hype >= threshold) {
+      if (!state.ftue.seenHypeTier[threshold]) {
+        state.ftue.seenHypeTier[threshold] = true;
+        slam(name);
+      }
+      break;
+    }
   }
-  if (tier > lastHypeTier) {
-    const name = HYPE_TIERS.find(([t]) => t === tier)[1];
-    slam(name);
-  }
-  lastHypeTier = tier;
 
   const lvlStr = `Lv ${state.acct.level}`;
   if (els.level.textContent !== lvlStr) els.level.textContent = lvlStr;
   els.xpfill.style.width = Math.min(100, (state.acct.xp / xpToNext(state.acct.level)) * 100) + '%';
 
-  const showF = state.acct.level >= 2 || state.run.followers > 0;
+  const showF = state.story.unlocks.postad || state.run.followers > 0;
   els.followersWrap.classList.toggle('hidden', !showF);
+
+  const unread = unreadStory(state);
+  const unreadStr = unread ? String(unread) : '';
+  if (els.unread.textContent !== unreadStr) {
+    els.unread.textContent = unreadStr;
+    els.unread.classList.toggle('hidden', !unread);
+  }
 
   const inv = state.acct.investors;
   els.invest.classList.toggle('hidden', !inv && !state.acct.exits);
