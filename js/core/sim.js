@@ -9,7 +9,9 @@ import { PRODUCTS } from '../data/products.js';
 import { TREND_TAGS } from '../data/ads.js';
 import { ACHIEVEMENTS } from '../data/achievements.js';
 import { NICHES_BY_ID } from '../data/niches.js';
+import { VA_LEVELS } from '../data/prestige.js';
 import { autoLaunch, postAdInternal, applyMomentReward } from './actions.js';
+import { checkStory } from './story.js';
 
 export function simTick(state, dt) {
   const s = state.sim;
@@ -53,14 +55,14 @@ export function simTick(state, dt) {
     bus.emit('buff:end');
   }
 
-  // --- Trend wave machine ---
+  // --- Trend wave machine (dormant until trends_intro arms nextWaveMs) ---
   if (!s.waveTag) {
-    if (!s.waveForeshadowed && t >= s.nextWaveMs - BAL.WAVE_FORESHADOW_MS) {
+    if (s.nextWaveMs != null && !s.waveForeshadowed && t >= s.nextWaveMs - BAL.WAVE_FORESHADOW_MS) {
       s.waveForeshadowed = true;
       s.pendingWaveTag = pickWaveTag(state);
       bus.emit('wave:foreshadow', { tag: s.pendingWaveTag });
     }
-    if (t >= s.nextWaveMs) {
+    if (s.nextWaveMs != null && t >= s.nextWaveMs) {
       s.waveTag = s.pendingWaveTag || pickWaveTag(state);
       s.pendingWaveTag = null;
       s.waveEndMs = t + randRange(state, BAL.WAVE_DUR_MIN, BAL.WAVE_DUR_MAX);
@@ -82,17 +84,18 @@ export function simTick(state, dt) {
     bus.emit('wave:end', { tag, ridden, warmTag: s.warmTag });
   }
 
-  // --- Viral moments (golden cookies). Only spawn for visible sessions;
-  //     loop.js suppresses ticks while hidden beyond the catch-up window. ---
-  if (!s.momentActive && t >= s.nextMomentMs) {
+  // --- Viral moments (golden cookies). Dormant until moments_intro arms the
+  //     timer. Only spawn for visible sessions; loop.js suppresses ticks
+  //     while hidden beyond the catch-up window. ---
+  if (!s.momentActive && s.nextMomentMs != null && t >= s.nextMomentMs) {
     s.momentActive = true;
     s.momentExpireMs = t + BAL.MOMENT_DUR_MS + d.momentExtraMs;
     bus.emit('moment:spawn', { expireMs: s.momentExpireMs });
   }
   if (s.momentActive && t >= s.momentExpireMs) {
     s.momentActive = false;
-    // Trend Watcher VA (Lv25): auto-catch at 50% value as it slips away.
-    if (state.acct.level >= 25) {
+    // Trend Watcher VA: auto-catch at 50% value as it slips away.
+    if (state.acct.level >= VA_LEVELS.trendwatcher) {
       applyMomentReward(state, BAL.TRENDWATCH_VALUE, true);
     }
     s.nextMomentMs = t + randRange(state, BAL.MOMENT_GAP_MIN, BAL.MOMENT_GAP_MAX);
@@ -109,15 +112,15 @@ export function simTick(state, dt) {
   }
 
   // --- VAs ---
-  if (state.acct.level >= 8) {
+  if (state.acct.level >= VA_LEVELS.autopacker) {
     // Auto-Packer: 2 clicks/sec, no crits, no hype
     state.run.cash += clickValue(state) * BAL.AUTOPACK_CPS * sec;
   }
-  if (state.acct.level >= 12 && t - s.lastPostMs >= BAL.INTERN_POST_MS) {
+  if (state.acct.level >= VA_LEVELS.intern && t - s.lastPostMs >= BAL.INTERN_POST_MS) {
     s.lastPostMs = t;
     postAdInternal(state, 1, false);
   }
-  if (state.acct.level >= 18) {
+  if (state.acct.level >= VA_LEVELS.campaignmgr) {
     // Campaign Manager: when energy is full and the rack has room, auto-spin
     // and launch at 60% power. Keeps idle players near parity.
     if (state.run.energy >= d.energyMax - 0.001
@@ -138,11 +141,12 @@ export function simTick(state, dt) {
   for (const p of PRODUCTS) units += (state.run.products[p.id] || 0);
   state.acct.stats.itemsSold += units * 0.1 * sec;
 
-  // --- 1 Hz housekeeping: unlock gates, achievements, stat maxes ---
+  // --- 1 Hz housekeeping: unlock gates, achievements, story, stat maxes ---
   if (t - s.lastAchCheckMs >= 1000) {
     s.lastAchCheckMs = t;
     checkUnlocks(state);
     checkAchievements(state);
+    checkStory(state);
     const st = state.acct.stats;
     if (state.run.followers > st.maxFollowers) st.maxFollowers = state.run.followers;
     if (state.run.hype > st.maxHype) st.maxHype = state.run.hype;
@@ -183,6 +187,8 @@ export function addFollowers(state, amount) {
 }
 
 export function addHype(state, amount) {
+  // Inert until Chase introduces the yellow bar (hype_intro beat).
+  if (!state.story.unlocks.hype) return;
   const d = getDerived(state);
   state.run.hype = Math.min(d.hypeMax, state.run.hype + amount);
 }

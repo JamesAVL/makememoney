@@ -38,7 +38,9 @@ export function deserialize(payloadStr) {
   let save = JSON.parse(payload.s);
   let v = payload.v ?? save.v ?? 1;
   while (v < SCHEMA_VERSION) {
-    if (!migrations[v]) throw new Error(`no migration from v${v}`);
+    if (!migrations[v]) {
+      throw new Error(`save is from HustleOS 4.x (schema v${v}) — retired by the 5.0 "Mentorship" reset`);
+    }
     save = migrations[v](save) || save;
     v++;
   }
@@ -150,6 +152,7 @@ export function applyOffline(state, report, doubled) {
   if (report.cash > 0) addCash(state, report.cash * mult);
   if (report.followers > 0) addFollowers(state, report.followers * mult);
   addHype(state, 10);
+  if (doubled) state.acct.stats.sponsorDoubles++;
   if (report.cappedMs >= 8 * 3600 * 1000) state.acct.stats.offlineCollects8h++;
   bus.emit('offline:collected', { ...report, doubled });
 }
@@ -159,11 +162,17 @@ export function onSessionStart(state, awayMs) {
   const s = state.sim;
   s.sessionStartMs = s.timeMs;
   s.momentActive = false;
-  s.nextMomentMs = Math.min(s.nextMomentMs, s.timeMs + BAL.MOMENT_SESSION_PITY_MS);
+  // Null timers = system not story-armed yet; leave dormant (Math.min against
+  // null would coerce to 0 and fire a moment instantly on load).
+  if (s.nextMomentMs != null) {
+    s.nextMomentMs = Math.min(s.nextMomentMs, s.timeMs + BAL.MOMENT_SESSION_PITY_MS);
+  }
   // Don't let a wave that "should" have fired mid-absence fire instantly.
   s.waveForeshadowed = false;
   s.pendingWaveTag = null;
-  if (s.nextWaveMs < s.timeMs + 45000) s.nextWaveMs = s.timeMs + 45000 + (s.timeMs % 30000);
+  if (s.nextWaveMs != null && s.nextWaveMs < s.timeMs + 45000) {
+    s.nextWaveMs = s.timeMs + 45000 + (s.timeMs % 30000);
+  }
   // Energy regenerates while away.
   const d = getDerived(state);
   state.run.energy = Math.min(d.energyMax, state.run.energy + awayMs / d.energyRegenMs);

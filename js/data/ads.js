@@ -40,15 +40,15 @@ export const HOOKS = Object.freeze([
   { id: 'today_years', text: 'I was today years old when I found out about {p}', rarity: 'common', tags: ['gadget', 'satisfying'], unlock: {} },
   { id: 'nobody_talking', text: 'Why is NOBODY talking about {p}??', rarity: 'common', tags: ['quantum', 'cozy'], unlock: {} },
   { id: 'apartment_sense', text: 'Things in my apartment that just make sense', rarity: 'common', tags: ['cozy', 'aesthetic'], unlock: {} },
-  { id: 'unboxing_asmr', text: 'Unboxing ASMR: watch till the end 🔊', rarity: 'uncommon', tags: ['satisfying', 'sleep'], unlock: { level: 5 } },
-  { id: 'doctors_furious', text: 'Doctors are FURIOUS about this', rarity: 'uncommon', tags: ['wellness', 'fitness'], unlock: { level: 7 } },
-  { id: 'nana_day3', text: "My nana didn't believe me until day 3", rarity: 'uncommon', tags: ['kitchen', 'pets'], unlock: { level: 9 } },
-  { id: 'sold_out', text: 'This sold out 4 times (we restocked, obviously)', rarity: 'uncommon', tags: ['luxury', 'hydration'], unlock: { level: 11 } },
-  { id: 'run_dont_walk', text: 'Run, don’t walk. RUN.', rarity: 'rare', tags: ['fitness', 'grind'], unlock: { level: 14 } },
-  { id: 'big_industry', text: 'The Big Blanket industry doesn’t want you to know this', rarity: 'rare', tags: ['sleep', 'quantum'], unlock: { level: 17 } },
-  { id: 'villain_origin', text: 'This is your villain origin story for bad posture', rarity: 'rare', tags: ['pets', 'guru'], unlock: { level: 20 } },
-  { id: 'day_in_life', text: 'Day in my life as a founder (5AM, real)', rarity: 'epic', tags: ['grind', 'guru'], unlock: { level: 24 } },
-  { id: 'tested_30', text: 'I tested it for 30 days so you don’t have to', rarity: 'epic', tags: ['gadget', 'wellness'], unlock: { level: 28 } },
+  { id: 'unboxing_asmr', text: 'Unboxing ASMR: watch till the end 🔊', rarity: 'uncommon', tags: ['satisfying', 'sleep'], unlock: { level: 4 } },
+  { id: 'doctors_furious', text: 'Doctors are FURIOUS about this', rarity: 'uncommon', tags: ['wellness', 'fitness'], unlock: { level: 6 } },
+  { id: 'nana_day3', text: "My nana didn't believe me until day 3", rarity: 'uncommon', tags: ['kitchen', 'pets'], unlock: { level: 8 } },
+  { id: 'sold_out', text: 'This sold out 4 times (we restocked, obviously)', rarity: 'uncommon', tags: ['luxury', 'hydration'], unlock: { level: 10 } },
+  { id: 'run_dont_walk', text: 'Run, don’t walk. RUN.', rarity: 'rare', tags: ['fitness', 'grind'], unlock: { level: 13 } },
+  { id: 'big_industry', text: 'The Big Blanket industry doesn’t want you to know this', rarity: 'rare', tags: ['sleep', 'quantum'], unlock: { level: 16 } },
+  { id: 'villain_origin', text: 'This is your villain origin story for bad posture', rarity: 'rare', tags: ['pets', 'guru'], unlock: { level: 19 } },
+  { id: 'day_in_life', text: 'Day in my life as a founder (5AM, real)', rarity: 'epic', tags: ['grind', 'guru'], unlock: { level: 23 } },
+  { id: 'tested_30', text: 'I tested it for 30 days so you don’t have to', rarity: 'epic', tags: ['gadget', 'wellness'], unlock: { level: 27 } },
   { id: 'main_character', text: "It's giving main character", rarity: 'legendary', tags: ['aesthetic', 'luxury'], unlock: { exits: 1 } },
   { id: 'quit_job', text: 'I quit my 9–5 and you won’t BELIEVE what happened', rarity: 'legendary', tags: ['guru', 'grind'], unlock: { exits: 3 } },
 ]);
@@ -76,7 +76,7 @@ export const PLATFORMS = Object.freeze([
     blurb: 'Chaotic short-video lottery. Fast money, faster decay.',
     kind: 'burst',            // rate multiplier for a short duration
     durationMs: 90000,
-    unlock: {},
+    unlock: { story: 'adstudio' },
   },
   {
     id: 'instaglam',
@@ -85,7 +85,7 @@ export const PLATFORMS = Object.freeze([
     blurb: 'The aesthetic tax bracket. Pays followers, not cash.',
     kind: 'followers',        // instant follower payout: 120×√F × outcome factor
     durationMs: 0,
-    unlock: { cashSeen: 1000 },
+    unlock: { story: 'instaglam' },
   },
   {
     id: 'facespace',
@@ -94,7 +94,7 @@ export const PLATFORMS = Object.freeze([
     blurb: 'The boomer money printer. One slot. It never stops sharing.',
     kind: 'slot',             // one persistent slot; new launch replaces old
     durationMs: 0,
-    unlock: { cashSeen: 25000 },
+    unlock: { story: 'facespace' },
   },
 ]);
 

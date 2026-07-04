@@ -4,7 +4,7 @@
 // locked card displays its requirement, so the gate IS the tutorial.
 // `tags` feed the Ad Studio reels, trend waves, and niches.
 
-export const MILESTONES = [10, 25, 50, 100, 150, 200, 250, 300, 400, 500];
+export const MILESTONES = [10, 30, 75, 150, 225, 300, 400, 500];
 
 const COST_RATIO = 15;
 const INCOME_RATIO = 5.5;
@@ -23,7 +23,7 @@ const DEFS = [
   {
     id: 'galaxy', name: 'LED Galaxy Projector', icon: '🌌', growth: 1.14,
     desc: 'Turns any studio apartment into basically the observation deck of a starship.',
-    tags: ['cozy', 'aesthetic'], unlock: { cashSeen: 60 }, milestoneName: 'Now With 30% More Galaxy',
+    tags: ['cozy', 'aesthetic'], unlock: { cashSeen: 400 }, milestoneName: 'Now With 30% More Galaxy',
   },
   {
     id: 'doghoodie', name: 'Posture-Correcting Dog Hoodie', icon: '🐕', growth: 1.15,
@@ -33,7 +33,7 @@ const DEFS = [
   {
     id: 'judgybottle', name: 'Smart Water Bottle That Judges You', icon: '🍼', growth: 1.15,
     desc: "Glows red with quiet disappointment when you don't hydrate.",
-    tags: ['hydration', 'gadget'], unlock: { cashSeen: 15000 }, milestoneName: 'Now Passive-Aggressive',
+    tags: ['hydration', 'gadget'], unlock: { cashSeen: 30000 }, milestoneName: 'Now Passive-Aggressive',
   },
   {
     id: 'shroomcoffee', name: 'Mushroom Coffee (Mostly Mushrooms)', icon: '🍄', growth: 1.15,
@@ -48,7 +48,7 @@ const DEFS = [
   {
     id: 'bracelets', name: 'Quantum-Entangled Friendship Bracelets', icon: '🔗', growth: 1.13,
     desc: 'When one breaks, the other feels it. (Neither feels it.)',
-    tags: ['quantum', 'aesthetic'], unlock: { followers: 25000 }, milestoneName: 'Spooky Action Bundle',
+    tags: ['quantum', 'aesthetic'], unlock: { followers: 3e6 }, milestoneName: 'Spooky Action Bundle',
   },
   {
     id: 'hydrategpt', name: 'HydrateGPT Smart Bottle', icon: '🤖', growth: 1.13,
@@ -58,7 +58,7 @@ const DEFS = [
   {
     id: 'gymair', name: 'Jar of Gym Air', icon: '🫙', growth: 1.12,
     desc: 'Bottled at peak deadlift. Notes of chalk, ambition, and rubber flooring.',
-    tags: ['fitness', 'grind'], unlock: { followers: 250000 }, milestoneName: 'Vintage 2019 Reserve',
+    tags: ['fitness', 'grind'], unlock: { followers: 3e7 }, milestoneName: 'Vintage 2019 Reserve',
   },
   {
     id: 'jetcandle', name: 'Private-Jet-Scented Candle', icon: '🕯️', growth: 1.12,
@@ -68,12 +68,12 @@ const DEFS = [
   {
     id: 'masterclass', name: '"Passive Income Masterclass"', icon: '🎓', growth: 1.11,
     desc: 'Stop selling products. Sell the dream of selling products.',
-    tags: ['guru', 'grind'], unlock: { followers: 2000000 }, milestoneName: 'Module 7: Scaling Your Scale',
+    tags: ['guru', 'grind'], unlock: { followers: 3e8 }, milestoneName: 'Module 7: Scaling Your Scale',
   },
   {
     id: 'gurucon', name: 'GuruCon World Summit Tickets', icon: '🎤', growth: 1.11,
     desc: 'Be in the room where it happens. The room is near an airport.',
-    tags: ['guru', 'luxury'], unlock: { followers: 10000000, level: 25 }, milestoneName: 'VIP Lanyard Tier',
+    tags: ['guru', 'luxury'], unlock: { followers: 3e9, level: 25 }, milestoneName: 'VIP Lanyard Tier',
   },
 ];
 

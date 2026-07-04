@@ -2,7 +2,7 @@
 // only writers. Scoping rule: `run` resets on Exit, `acct` never resets,
 // `sim` is scheduler bookkeeping (sim-time timestamps only — never wall clock).
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export function createInitialState(now) {
   return {
@@ -16,17 +16,17 @@ export function createInitialState(now) {
     sim: {
       timeMs: 0,
       sessionStartMs: 0,      // reset on every load; drives session pity timers
-      // Trend waves
+      // Trend waves (null until the trends_intro story beat arms them)
       waveTag: null,
       waveEndMs: 0,
-      nextWaveMs: 240000,
+      nextWaveMs: null,
       waveForeshadowed: false,
       waveRidden: false,
       warmTag: 'satisfying',
-      // Viral moments (golden cookies)
+      // Viral moments (golden cookies; null until moments_intro arms them)
       momentActive: false,
       momentExpireMs: 0,
-      nextMomentMs: 150000,
+      nextMomentMs: null,
       autoMomentMs: 0,
       // Temp buffs from moments (frenzy / mega)
       buffMult: 1,
@@ -80,13 +80,21 @@ export function createInitialState(now) {
         maxFollowers: 0, maxHype: 0, maxOneProduct: 0, maxTierUnlocked: 1,
         wavesRidden: 0, momentsClicked: 0, whaleOrders: 0,
         offlineCollects8h: 0, logoClicks: 0, creativeAccounting: 0,
-        bestCps: 0,
+        bestCps: 0, sponsorDoubles: 0,
       },
+    },
+    // Chase Margin's mentorship. Acct-scoped: survives Exits, so run 2+
+    // starts fully unlocked. js/core/story.js is the only writer.
+    story: {
+      seen: {},                // beatId -> simMs delivered
+      acked: {},               // beatId -> simMs acknowledged
+      unlocks: {},             // flag -> true; THE unlock truth (tabs & verbs)
+      lastDeliveryMs: 0,
     },
     ftue: {
       clicks: 0,
       riggedSpinDone: false,
-      unlocks: {},             // panelId -> true once celebrated
+      seenHypeTier: {},        // tier threshold -> true once slammed
       tips: {},
     },
     settings: {

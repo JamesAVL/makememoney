@@ -1,4 +1,4 @@
-// Run-scoped cash upgrades. Three per product tier (100× / 2,500× / 50,000× the
+// Run-scoped cash upgrades. Three per product tier (150× / 4,000× / 80,000× the
 // product's base cost, each ×2 that product's income) plus globals and
 // systems upgrades. All reset on Exit. Effects are declarative — resolved in
 // core/balance.js.
@@ -14,7 +14,7 @@ const TIER_UPGRADE_NAMES = [
 
 function tierUpgrades() {
   const out = [];
-  const costMults = [100, 2500, 50000];
+  const costMults = [150, 4000, 80000];
   const ownedReq = [10, 50, 150];
   for (const p of PRODUCTS) {
     for (let rung = 0; rung < 3; rung++) {
@@ -37,7 +37,7 @@ const GLOBALS = [
     id: 'g_bubblewrap',
     name: 'Bulk Bubble Wrap',
     desc: 'Pack Order clicks ×2. Also functions as your only stress management.',
-    cost: 500, category: 'grindset',
+    cost: 2500, category: 'grindset',
     effects: [{ type: 'clickMult', value: 2 }],
   },
   {
@@ -103,14 +103,14 @@ const SYSTEMS = [
     id: 's_ringlight',
     name: 'Ring Light of Destiny',
     desc: '+2% VIRAL odds on every launch. You can see your future in it.',
-    cost: 15000, category: 'ads',
+    cost: 25000, category: 'ads',
     effects: [{ type: 'viralChanceAdd', value: 2 }],
   },
   {
     id: 's_espresso',
     name: 'Espresso IV Drip',
     desc: 'Creative Energy refills 40% faster. You can hear colors now.',
-    cost: 60000, category: 'ads',
+    cost: 100000, category: 'ads',
     effects: [{ type: 'energyRegenMult', value: 1 / 1.4 }],
   },
   {

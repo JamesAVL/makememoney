@@ -34,6 +34,7 @@ export function packOrder(state) {
 }
 
 export function postAd(state) {
+  if (!state.story.unlocks.postad) return null;
   const t = state.sim.timeMs;
   if (t - (state.sim.lastManualPostMs || 0) < BAL.POST_MIN_GAP_MS) return null;
   state.sim.lastManualPostMs = t;
@@ -52,6 +53,7 @@ export function postAdInternal(state, power, manual) {
 // --- Buying -----------------------------------------------------------------
 
 export function buyProduct(state, id, qty) {
+  if (!state.story.unlocks.products) return false;
   const p = PRODUCTS_BY_ID[id];
   if (!p || !state.run.unlocked[id]) return false;
   const d = getDerived(state);
@@ -78,6 +80,7 @@ export function buyProduct(state, id, qty) {
 }
 
 export function buyUpgrade(state, id) {
+  if (!state.story.unlocks.upgrades) return false;
   const u = UPGRADES_BY_ID[id];
   if (!u || state.run.upgrades[id]) return false;
   if (!upgradeAvailable(state, u)) return false;
@@ -129,6 +132,7 @@ function nicheTagOf(nicheId) {
 }
 
 export function spinReels(state, locks = {}) {
+  if (!state.story.unlocks.adstudio) return null;
   if (state.run.energy < 1) return null;
   const d = getDerived(state);
   const hooks = ownedHooks(state);
@@ -282,8 +286,9 @@ function applyPlatformEffect(state, platform, outcome, ad, result) {
 }
 
 export function platformUnlocked(state, platform) {
+  // Chase introduces each platform; the flags live in story.unlocks.
   const u = platform.unlock;
-  if (u.cashSeen && state.run.lifetimeCash < u.cashSeen) return false;
+  if (u.story && !state.story.unlocks[u.story]) return false;
   return true;
 }
 
@@ -374,7 +379,8 @@ export function buyGuru(state, id) {
 // --- Prestige: The Exit ----------------------------------------------------------
 
 export function canExit(state) {
-  return state.acct.level >= EXIT_MIN_LEVEL && exitPreview(state).gained >= 1;
+  return !!state.story.unlocks.exit
+    && state.acct.level >= EXIT_MIN_LEVEL && exitPreview(state).gained >= 1;
 }
 
 export function doExit(state) {
@@ -461,6 +467,7 @@ export function generateCompanyName(state) {
 // resets. No countdown timers, no guilt. The bonus rewards showing up.
 
 export function dailyStandup(state, today, consecutive) {
+  if (!state.story.unlocks.standup) return null;
   const su = state.acct.standup;
   if (!su || su.day === today) return null;
   const firstEver = !su.day;

@@ -33,20 +33,20 @@ export const BAL = Object.freeze({
   REACH_EXP: 0.4,
 
   // Leveling
-  XP_BASE: 100,
-  XP_GROWTH: 1.3,
+  XP_BASE: 90,
+  XP_GROWTH: 1.35,
   LEVEL_INCOME: 0.01,
-  XP_CLICK: 0.25,
-  XP_BUY_PER_TIER: 2,
-  XP_MILESTONE_PER_TIER: 40,
-  XP_LAUNCH: 60,
-  XP_WAVE: 50,
-  XP_MOMENT: 50,
-  XP_EXIT: 1500,
+  XP_CLICK: 0.04,
+  XP_BUY_PER_TIER: 0.5,
+  XP_MILESTONE_PER_TIER: 60,
+  XP_LAUNCH: 10,
+  XP_WAVE: 40,
+  XP_MOMENT: 40,
+  XP_EXIT: 2000,
 
   // Ad Studio
   ENERGY_MAX: 3,
-  ENERGY_REGEN_MS: 45000,
+  ENERGY_REGEN_MS: 75000,
   AD_FEE_SECONDS: 60,
   AD_FEE_MIN: 20,
   CLIKCLOK_BONUS: 0.25,              // campaign adds outcomeMult × bonus × decay(t)
@@ -70,17 +70,19 @@ export const BAL = Object.freeze({
   PITY_VIRAL: 1.5,
   CHAOS_CHANCE: 0.05,
 
-  // Trend waves
-  WAVE_GAP_MIN: 180000, WAVE_GAP_MAX: 360000,
+  // Trend waves (dormant until the trends_intro beat arms the scheduler)
+  WAVE_GAP_MIN: 420000, WAVE_GAP_MAX: 780000,
   WAVE_DUR_MIN: 60000, WAVE_DUR_MAX: 120000,
   WAVE_FORESHADOW_MS: 30000,
+  WAVE_FIRST_DELAY_MS: 60000,
   WAVE_PRODUCT_MULT: 3,
   WAVE_RIDE_HYPE: 20,
 
-  // Viral moments
-  MOMENT_GAP_MIN: 180000, MOMENT_GAP_MAX: 420000,
+  // Viral moments (dormant until moments_intro arms the scheduler)
+  MOMENT_GAP_MIN: 360000, MOMENT_GAP_MAX: 720000,
   MOMENT_DUR_MS: 22000,
-  MOMENT_SESSION_PITY_MS: 180000,
+  MOMENT_SESSION_PITY_MS: 300000,
+  MOMENT_FIRST_DELAY_MS: 90000,
   FRENZY_MULT: 5, FRENZY_MS: 25000,
   STORM_PCT: 0.15, STORM_FLAT: 500,
   WHALE_SECONDS: 300,
@@ -380,7 +382,8 @@ export function computeOdds(state, ad, boost) {
   const shifts = { wave: 0, warm: 0, product: 0, rarity: 0, boost: 0, pity: 0, upgrades: 0 };
   if (state.sim.waveTag && ad.tagId === state.sim.waveTag) {
     shifts.wave = shift(BAL.WAVE_SHIFT * (2 / 3), hit) + shift(BAL.WAVE_SHIFT / 3, viral);
-  } else if (ad.tagId === state.sim.warmTag) {
+  } else if (ad.tagId === state.sim.warmTag && state.story.unlocks.trends) {
+    // No unexplained odds modifiers before the Trends desk exists.
     shifts.warm = shift(BAL.WARM_SHIFT * (2 / 3), hit) + shift(BAL.WARM_SHIFT / 3, viral);
   }
   if (product.tags.includes(ad.tagId)) {

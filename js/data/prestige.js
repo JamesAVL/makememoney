@@ -3,9 +3,18 @@
 // Grindset Tree removes them from the passive pool — that tension is the
 // heart of the layer.
 
-export const INVESTOR_DIVISOR = 1e5;
+export const INVESTOR_DIVISOR = 6e11;
 export const INVESTOR_INCOME = 0.04;
 export const EXIT_MIN_LEVEL = 10;
+
+// Virtual-assistant hires by Hustler Level — the single source read by
+// sim.js, dashboard.js and LEVEL_UNLOCKS below.
+export const VA_LEVELS = Object.freeze({
+  autopacker: 8,
+  intern: 12,
+  campaignmgr: 15,
+  trendwatcher: 22,
+});
 
 export const GURU_TREE = Object.freeze([
   {
@@ -140,16 +149,16 @@ export const PERKS_BY_ID = Object.freeze(
   Object.fromEntries(PERKS.map((p) => [p.id, p]))
 );
 
-// Feature unlocks by Hustler Level (account-permanent).
+// Feature unlocks by Hustler Level (account-permanent). Post Ad is granted
+// by Chase's followers_intro beat, not a level, since v5.
 export const LEVEL_UNLOCKS = Object.freeze({
-  2: { id: 'postad', label: 'Post Ad button', desc: 'Manually farm followers.' },
-  6: { id: 'stats', label: 'Stats panel', desc: 'Numbers about your numbers.' },
+  3: { id: 'stats', label: 'Stats panel', desc: 'Numbers about your numbers.' },
   8: { id: 'autopacker', label: 'VA: Auto-Packer', desc: 'Packs 2 orders/sec for you.' },
   10: { id: 'exit', label: 'The Exit', desc: 'Blandrock Capital is watching.' },
   12: { id: 'intern', label: 'VA: Social Media Intern', desc: 'Auto-posts an ad every 5s.' },
   14: { id: 'rack2', label: 'Campaign Rack slot 2', desc: 'Run two campaigns at once.' },
+  15: { id: 'campaignmgr', label: 'VA: Campaign Manager', desc: 'Auto-launches ads at 60% power when idle.' },
   20: { id: 'rack3', label: 'Campaign Rack slot 3', desc: 'Three at once. The content mines never close.' },
+  22: { id: 'trendwatcher', label: 'VA: Trend Watcher', desc: 'Auto-catches Viral Moments at 50% value.' },
   26: { id: 'rack4', label: 'Campaign Rack slot 4', desc: 'Full rack. Peak content-industrial complex.' },
-  18: { id: 'campaignmgr', label: 'VA: Campaign Manager', desc: 'Auto-launches ads at 60% power when idle.' },
-  25: { id: 'trendwatcher', label: 'VA: Trend Watcher', desc: 'Auto-catches Viral Moments at 50% value.' },
 });
