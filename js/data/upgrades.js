@@ -197,3 +197,24 @@ export const UPGRADES = Object.freeze([...tierUpgrades(), ...GLOBALS, ...SYSTEMS
 export const UPGRADES_BY_ID = Object.freeze(
   Object.fromEntries(UPGRADES.map((u) => [u.id, u]))
 );
+
+// Plain-English effect line for the card (the joke stays in the name; the
+// mechanics must be scannable — designer feedback: "upgrades don't make sense").
+const PROD_NAME = Object.fromEntries(PRODUCTS.map((p) => [p.id, p.name]));
+export function effectLabel(u) {
+  const parts = [];
+  for (const e of u.effects) {
+    switch (e.type) {
+      case 'globalMult': parts.push(`ALL INCOME ×${e.value}`); break;
+      case 'productMult': parts.push(`${PROD_NAME[e.target] || 'PRODUCT'} ×${e.value}`); break;
+      case 'clickMult': parts.push(`PACK ORDER ×${e.value}`); break;
+      case 'energyMaxAdd': parts.push(`+${e.value} MAX ENERGY`); break;
+      case 'energyRegenMult': parts.push(`ENERGY REFILLS ${Math.round((1 / e.value - 1) * 100)}% FASTER`); break;
+      case 'followerGainMult': parts.push(`FOLLOWER GAINS ×${e.value}`); break;
+      case 'viralChanceAdd': parts.push(`+${e.value}% VIRAL ODDS`); break;
+      case 'reelLockAdd': parts.push(`+${e.value} REEL LOCK`); break;
+      default: break;
+    }
+  }
+  return parts.join(' · ');
+}

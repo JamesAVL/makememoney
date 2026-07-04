@@ -640,3 +640,25 @@ textarea:focus { border-color: var(--data) !important; outline: none; }
 .inbox-meta b { font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .inbox-meta .muted { font-size: 10.5px; }
 .toast.dm { border-color: #c084fc; }
+
+/* --- Upgrade legibility --- */
+.fx-line {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--money);
+  margin: 2px 0 4px;
+}
+.u-flavor { font-style: italic; }
+.u-section { margin-bottom: 14px; }
+.u-sec-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 2px 0 8px;
+}
+.ceremony .line .line-flavor, .ceremony .line-flavor {
+  font-size: 15px;
+  color: var(--text-lo);
+}

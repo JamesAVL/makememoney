@@ -39,6 +39,11 @@ export const REVIEWS = Object.freeze([
 // separately by the sim — these are the jokes).
 export const TICKER_JOKES = Object.freeze([
   'BREAKING: Study links 9-to-5 jobs to having a boss',
+  'Chase Margin denies Blueprint is a PDF; sells rebuttal as PDF',
+  'Study: 100% of dropshipping mentors photographed leaning on rented Lamborghini',
+  'Blandrock Capital acquires silence, declines comment',
+  'Chase Margin’s course now teaches refunding courses (non-refundable)',
+  '@TheChaseMargin: “97.3% of statistics are motivational”',
   'Your competitor just bought a Cybertruck (financed)',
   'Local man achieves inbox zero, immediately starts second inbox',
   'Report: 68% of “founders” are one guy with a ring light',

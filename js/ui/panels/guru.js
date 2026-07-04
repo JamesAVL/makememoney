@@ -181,7 +181,7 @@ function runExitCeremony(state) {
     `Followers cashed out: <b>${fmtInt(state.acct.stats.maxFollowers)}</b>`,
     `Lawsuits pending: <b>${1 + (state.acct.exits % 5)} (waived)</b>`,
     `<span class="big">INVESTORS ACQUIRED: +${fmtInt(result.gained)} 👤</span>`,
-    `<i class="muted">${exitFlavor(state.acct.exits)}</i>`,
+    `<i class="line-flavor">${exitFlavor(state.acct.exits)}</i>`,
   ];
   const tally = overlay.querySelector('#c-tally');
   tally.innerHTML = lines.map((l) => `<div class="line">${l}</div>`).join('');
@@ -197,7 +197,8 @@ function runExitCeremony(state) {
     }, 700 + i * 850));
   });
 
-  timers.push(setTimeout(bootPhase, 700 + lines.length * 850 + 1200));
+  // The exit-flavor line is the character arc — give it time to be read.
+  timers.push(setTimeout(bootPhase, 700 + lines.length * 850 + 3500));
 
   function bootPhase() {
     if (finished) return;

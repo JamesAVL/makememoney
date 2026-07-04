@@ -127,7 +127,8 @@ export function update(state, now) {
     const tile = card.querySelector('.p-tile');
     const mh = String(Math.min(7, hits));
     if (tile.dataset.mhits !== mh) tile.dataset.mhits = mh;
-    setText(card, '.p-desc', hits >= 4 ? `${p.desc} ${p.milestoneName ? '· “' + p.milestoneName + '”' : ''}` : p.desc);
+    // The escalating fake-version arc goes ambient after the first milestone.
+    setText(card, '.p-desc', hits >= 1 ? `${p.desc} ${p.milestoneName ? '· “' + p.milestoneName + '”' : ''}` : p.desc);
     setText(card, '.p-count', fmtInt(count));
     setText(card, '.p-cps', count ? `$${fmt(d.productCps[p.id] * d.staticGlobal)}/s` : '');
 
