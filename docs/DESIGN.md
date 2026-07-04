@@ -91,3 +91,56 @@ Reputation currency, COGS/margin sim, FORMAT as a 4th reel, separate hand-craft
 mode, Chirper/LinkedUpon platforms, GuruCo Disciples, second combo meter,
 multi-branch events, per-digit odometers. The IPO layer (Founder Shares, tiers
 13–18) is designed but deferred to a follow-up.
+
+---
+
+## v5.0 "The Mentorship Update" — narrative layer & re-pacing
+
+**Why:** designer feedback — no story, everything at once, upgrades illegible, too fast,
+web-page look. v5 restructures the whole first experience around a narrator.
+
+### Chase Margin (the story vehicle)
+You bought his "Zero-to-Exit Freedom Blueprint™" ($1,997, payment 1 of 3). Every mechanic
+is a numbered "lesson" DM'd to you. Voice rules: opens mid-thought; fake-precision stats
+("97.3% quit"); never lies about mechanics, lies about their *meaning*; lesson numbering
+decays late (6.5, "there is no Lesson 9"); address decays future-millionaire→champ→kid→nothing;
+emoji Act 1 only. Arc: sincere teacher → exploitation-as-craft → the Exit thesis ("a THING
+THAT CAN BE SOLD") → the mirror (you sell a Masterclass; "You were the course."; Blandrock
+acquires Chase the person, his likeness keeps posting). Blandrock Capital is the only other
+voice — letterhead only, never replies.
+
+### Story engine (js/core/story.js + js/data/story.js)
+40 beats as data with pure trigger predicates (same pattern as achievements). Delivery: at
+most ONE unread DM ever, authored order, `after:` chains, 20s min gap. Grants (tab unlocks,
+scheduler arming, verbs) apply on ACK — reading the DM is the unlock. `state.story` is
+acct-scoped (run 2+ starts unlocked). Core verbs are gated (buy/spin/launch/post/exit),
+hype is inert until introduced, and wave/moment schedulers are **null until their lesson
+arms them** — the balance suite asserts none can fire early. Every gating trigger is
+idle-reachable (OR-cash fallbacks; the idle bot proves it).
+
+### v5 pacing targets (bot-time ≈ ½ human; enforced by js/dev/balance-check.mjs)
+| Beat | Bot | Human |
+|---|---|---|
+| Products | ~1m | ~2m |
+| Ad Studio | 5–7m | 10–14m |
+| Upgrades | 7–12m | ~15–25m |
+| Trends (waves arm) | 13–21m | ~30–40m |
+| Exit gate (Lv10) | 25–45m | ~1–1.5h |
+| First exit | 60–90m | ~2–3h |
+| Idle-only first exit | 300–570m | overnight |
+
+Key constants: XP_GROWTH 1.35, XP mix shifted from clicks/launches to buys/milestones
+(keeps idle leveling alive), ENERGY_REGEN 75s, wave gaps 7–13m, moment gaps 6–12m,
+INVESTOR_DIVISOR 6e11 (first exit ≈ 38 investors), follower ladder rescaled to the
+post-POST-AD economy. Noise diet: one toast at a time, 8s celebration spacing, ticker
+hidden until Ad Studio + 75s scroll, cha-ching ≤1/4s, chips consolidated, hype slams
+once per account, achievements bank silently until the Flexes lesson.
+
+### Rendered graphics
+Generated `js/ui/icons.js` (96 Phosphor duotone icons, MIT, vendored via
+js/dev/fetch-assets.mjs — never fetched at runtime) + `js/ui/art.js` (hand-authored SVG:
+12 product illustrations on the tag duotones, 5 rubber-stamp outcomes, Chase avatar ×3
+moods, Blandrock mark, 4 VA portraits, platform parody logos, pack-box hero button,
+moment coin). Emoji survives only in diegetic content (hooks, reviews, ticker, DM copy).
+Art rules: 96-grid, top-left key light, 2 hues/subject via --tile-a/b + kraft/paper
+neutrals, painted shadows (no SVG filters), memoized instances for string-diff safety.

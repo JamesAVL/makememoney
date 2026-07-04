@@ -25,8 +25,9 @@ import { applyTheme } from './ui/theme.js';
 import { initRipples } from './ui/components/ripple.js';
 import { toast } from './ui/components/toast.js';
 import { icon as phIcon } from './ui/icons.js';
-import { initDM, openInbox } from './ui/components/dm.js';
+import { initDM, openInbox, openDM } from './ui/components/dm.js';
 import { isModalOpen } from './ui/components/modal.js';
+import { pendingBeat } from './core/story.js';
 import { dailyStandup } from './core/actions.js';
 import { OFFLINE_LINES, OFFLINE_FOOTNOTES, BOOT_LINES } from './data/flavor.js';
 
@@ -185,7 +186,8 @@ function boot() {
     nav.switchTab(wantTab);
   }
 
-  // --- HustleOS 4.x save retired: one-time notice, in character ---
+  // --- HustleOS 4.x save retired: one-time notice, in character. It may
+  //     replace the auto-opened Lesson 1 DM; ACCEPT re-opens it. ---
   if (wiped) {
     setTimeout(() => showModal({
       title: 'HustleOS™ v5.0 — “The Mentorship Update”',
@@ -193,7 +195,13 @@ function boot() {
         + 'Assets: gone. Lessons: repriced. A mentor has been assigned to your account. '
         + 'He found you himself.</div>',
       dismissible: false,
-      actions: [{ label: 'ACCEPT MENTORSHIP' }],
+      actions: [{
+        label: 'ACCEPT MENTORSHIP',
+        onClick: () => {
+          const p = pendingBeat(state);
+          if (p) setTimeout(() => openDM(p.id), 50);
+        },
+      }],
     }), 1900);
   }
 
