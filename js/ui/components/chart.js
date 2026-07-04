@@ -2,8 +2,19 @@
 // crisp line), gradient fill, animated y-rescale, event-marker pins.
 
 import { fmt } from '../fmt.js';
+import { ICON_PATHS } from '../icons.js';
 
 const WINDOWS = { '60s': 60000, '10m': 600000, 'ALL': Infinity };
+
+// Path2D pin glyphs, built once per icon name (256-grid fill weight).
+const pinCache = new Map();
+function pinPath(name) {
+  if (!pinCache.has(name)) {
+    pinCache.set(name, ICON_PATHS[name] ? new Path2D(ICON_PATHS[name]) : null);
+  }
+  return pinCache.get(name);
+}
+const PIN_COLORS = { rocket: '#f5b93e', volcano: '#d946ef', waves: '#38bdf8', fish: '#22d3ee' };
 
 function themeColors() {
   const cs = getComputedStyle(document.documentElement);
@@ -22,7 +33,7 @@ export function createChart(canvas) {
   let yMax = 10;
   let windowKey = '60s';
   let lastDraw = 0;
-  const pins = []; // {t, emoji}
+  const pins = []; // {t, emoji: icon name}
 
   function resize() {
     const r = canvas.getBoundingClientRect();
@@ -119,12 +130,24 @@ export function createChart(canvas) {
       ctx.arc(hx, hy, (5 + Math.sin(now / 200) * 2) * dpr, 0, 6.29);
       ctx.fill();
 
-      // event pins
-      ctx.font = `${11 * dpr}px sans-serif`;
-      ctx.textAlign = 'center';
+      // event pins: colored Phosphor glyphs on a dark pill (Path2D, cached)
       for (const pin of pins) {
         if (pin.t < t0 || pin.t > t) continue;
-        ctx.fillText(pin.emoji, X(pin.t), 12 * dpr);
+        const path = pinPath(pin.emoji);
+        const px = X(pin.t);
+        const s = (12 / 256) * dpr;
+        ctx.fillStyle = 'rgba(11,14,20,0.55)';
+        ctx.beginPath();
+        ctx.arc(px, 10 * dpr, 8 * dpr, 0, 6.29);
+        ctx.fill();
+        if (path) {
+          ctx.save();
+          ctx.translate(px - 6 * dpr, 4 * dpr);
+          ctx.scale(s, s);
+          ctx.fillStyle = PIN_COLORS[pin.emoji] || '#f5b93e';
+          ctx.fill(path);
+          ctx.restore();
+        }
       }
 
       // y label

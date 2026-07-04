@@ -7,16 +7,17 @@ import { upgradeAvailable } from '../../core/actions.js';
 import { PRODUCTS } from '../../data/products.js';
 import { GURU_TREE } from '../../data/prestige.js';
 import { markAllDirty } from '../render.js';
+import { icon } from '../icons.js';
 
 export const TABS = [
-  { id: 'dashboard', ico: '📊', label: 'Dashboard', always: true },
-  { id: 'products', ico: '📦', label: 'Products' },
-  { id: 'adstudio', ico: '🎬', label: 'Ad Studio' },
-  { id: 'upgrades', ico: '⬆️', label: 'Upgrades' },
-  { id: 'trends', ico: '📈', label: 'Trends' },
-  { id: 'guru', ico: '🧘', label: 'Guru Mode' },
-  { id: 'flexes', ico: '🏆', label: 'Flexes' },
-  { id: 'settings', ico: '⚙️', label: 'Settings', always: true },
+  { id: 'dashboard', ico: 'gauge', label: 'Dashboard', always: true },
+  { id: 'products', ico: 'package', label: 'Products' },
+  { id: 'adstudio', ico: 'film-slate', label: 'Ad Studio' },
+  { id: 'upgrades', ico: 'arrow-fat-lines-up', label: 'Upgrades' },
+  { id: 'trends', ico: 'chart-line-up', label: 'Trends' },
+  { id: 'guru', ico: 'crown', label: 'Guru Mode' },
+  { id: 'flexes', ico: 'trophy', label: 'Flexes' },
+  { id: 'settings', ico: 'gear-six', label: 'Settings', always: true },
 ];
 
 let root_ = null;
@@ -82,7 +83,7 @@ export function mount(root, state) {
     const b = document.createElement('button');
     b.className = 'nav-btn';
     b.dataset.tab = t.id;
-    b.innerHTML = `<span class="ico">${t.ico}</span><span class="lbl">${t.label}</span>`;
+    b.innerHTML = `<span class="ico" data-ico="${t.ico}">${icon(t.ico, { size: 20 })}</span><span class="lbl">${t.label}</span>`;
     b.addEventListener('click', () => switchTab(t.id));
     root.appendChild(b);
     btns[t.id] = b;
@@ -111,7 +112,11 @@ export function update(state) {
     if (unlocked) {
       b.classList.remove('locked', 'hidden');
       const ico = b.querySelector('.ico');
-      if (ico.textContent !== t.ico) ico.textContent = t.ico;
+      // data-ico key compare — string-diff on innerHTML would re-parse SVG.
+      if (ico.dataset.ico !== t.ico) {
+        ico.dataset.ico = t.ico;
+        ico.innerHTML = icon(t.ico, { size: 20 });
+      }
       const lbl = b.querySelector('.lbl');
       if (lbl.textContent !== t.label) lbl.textContent = t.label;
       updateBadge(state, t.id, b);
@@ -119,7 +124,11 @@ export function update(state) {
       teasers++;
       b.classList.add('locked');
       b.classList.remove('hidden');
-      b.querySelector('.ico').textContent = '🔒';
+      const ico = b.querySelector('.ico');
+      if (ico.dataset.ico !== 'lock-simple') {
+        ico.dataset.ico = 'lock-simple';
+        ico.innerHTML = icon('lock-simple', { size: 20 });
+      }
       b.querySelector('.lbl').textContent = '???';
       setBadge(b, false);
     } else {

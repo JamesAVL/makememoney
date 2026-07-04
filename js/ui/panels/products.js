@@ -12,6 +12,8 @@ import { bus } from '../../core/bus.js';
 import { burst, SPR } from '../components/particles.js';
 import { sBuy } from '../../audio/synth.js';
 import { markDirty } from '../render.js';
+import { productArt } from '../art.js';
+import { icon } from '../icons.js';
 
 let state_ = null;
 let qty = 1; // 1 | 10 | 'max'
@@ -24,7 +26,7 @@ export function mount(root, state) {
   root.innerHTML = `
     <div class="panel">
       <div class="panel-title">
-        <span>📦 Product Catalog — Fulfillment Center: find yours</span>
+        <span>${icon('package', { size: 16 })} Product Catalog — Fulfillment Center: find yours</span>
         <span class="qty-toggle" id="p-qty">
           <button data-q="1" class="active">×1</button>
           <button data-q="10">×10</button>
@@ -49,7 +51,7 @@ export function mount(root, state) {
     card.dataset.pid = p.id;
     card.innerHTML = `
       <div class="card-title">
-        <span class="p-tile" data-tag="${p.tags[0]}"><span class="p-glyph">${p.icon}</span><span class="p-ring"></span></span>
+        <span class="p-tile" data-tag="${p.tags[0]}"><span class="p-glyph">${productArt(p.id, 34)}</span><span class="p-ring"></span></span>
         <span class="p-name">${p.name}</span>
       </div>
       <div class="card-sub p-desc"></div>

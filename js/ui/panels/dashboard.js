@@ -4,6 +4,8 @@
 import { totalCps, clickValue, tempMult, comebackMult, BAL } from '../../core/balance.js';
 import { packOrder, postAd } from '../../core/actions.js';
 import { VA_LEVELS } from '../../data/prestige.js';
+import { icon } from '../icons.js';
+import { brandArt } from '../art.js';
 import { fmt, fmtCash, fmtInt } from '../fmt.js';
 import { createChart } from '../components/chart.js';
 import { floatNum, shake } from '../components/celebrate.js';
@@ -37,11 +39,11 @@ export function mount(root, state) {
       <div class="panel" style="flex:1;min-width:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:22px">
         <div class="pack-wrap">
           <div class="pack-rim" aria-hidden="true"></div>
-          <button class="pack-btn" id="d-pack">📦 PACK ORDER<span class="sub" id="d-packval">+$1.00</span></button>
+          <button class="pack-btn" id="d-pack"><span class="pack-art">${brandArt('pack-box', 54)}</span>PACK ORDER<span class="sub" id="d-packval">+$1.00</span></button>
           <div class="pack-ring" id="d-ring"></div>
         </div>
         <button class="btn hidden" id="d-post" title="+followers, +hype">
-          📣 POST AD <span class="muted num" id="d-postval"></span>
+          ${icon('megaphone', { size: 15 })} POST AD <span class="muted num" id="d-postval"></span>
         </button>
         <div id="d-hint" class="muted" style="font-size:12px;text-align:center">
           Step 1: fulfill orders. Step 2: ??? Step 3: profit.
@@ -113,11 +115,11 @@ export function mount(root, state) {
   });
 
   bus.on('launch', (r) => {
-    if (r.outcome.id === 'viral') chart.addPin(state_.sim.timeMs, '🚀');
-    if (r.outcome.id === 'mega') chart.addPin(state_.sim.timeMs, '🌋');
+    if (r.outcome.id === 'viral') chart.addPin(state_.sim.timeMs, 'rocket');
+    if (r.outcome.id === 'mega') chart.addPin(state_.sim.timeMs, 'volcano');
   });
-  bus.on('wave:start', () => chart.addPin(state_.sim.timeMs, '🌊'));
-  bus.on('moment:reward', (r) => { if (r.kind === 'whale') chart.addPin(state_.sim.timeMs, '🐋'); });
+  bus.on('wave:start', () => chart.addPin(state_.sim.timeMs, 'waves'));
+  bus.on('moment:reward', (r) => { if (r.kind === 'whale') chart.addPin(state_.sim.timeMs, 'fish'); });
 }
 
 let lastSlow = 0;
@@ -161,26 +163,27 @@ export function update(state, now) {
   // one summary chip; row capped at 3 + overflow counter.
   const chipList = [];
   const t = state.sim.timeMs;
+  const chipIco = (n) => icon(n, { size: 12 });
   if (state.run.campaigns.length === 1) {
     const c = state.run.campaigns[0];
     const secs = Math.max(0, Math.ceil((c.endMs - t) / 1000));
-    chipList.push(`<span class="chip hot">🎬 ${c.outcome.toUpperCase()} ${secs}s</span>`);
+    chipList.push(`<span class="chip hot">${chipIco('film-slate')} ${c.outcome.toUpperCase()} ${secs}s</span>`);
   } else if (state.run.campaigns.length > 1) {
     let best = state.run.campaigns[0];
     for (const c of state.run.campaigns) if (c.mult > best.mult) best = c;
     const secs = Math.max(0, Math.ceil((best.endMs - t) / 1000));
-    chipList.push(`<span class="chip hot">🎬 ${state.run.campaigns.length} campaigns · best ${best.outcome.toUpperCase()} ${secs}s</span>`);
+    chipList.push(`<span class="chip hot">${chipIco('film-slate')} ${state.run.campaigns.length} campaigns · best ${best.outcome.toUpperCase()} ${secs}s</span>`);
   }
   if (state.sim.buffEndMs > t) {
-    chipList.push(`<span class="chip hot">✨ ${state.sim.buffLabel} ${Math.ceil((state.sim.buffEndMs - t) / 1000)}s</span>`);
+    chipList.push(`<span class="chip hot">${chipIco('sparkle')} ${state.sim.buffLabel} ${Math.ceil((state.sim.buffEndMs - t) / 1000)}s</span>`);
   }
   if (state.sim.waveTag) {
-    chipList.push(`<span class="chip hot">🌊 ${TAGS_BY_ID[state.sim.waveTag].label} surging</span>`);
+    chipList.push(`<span class="chip hot">${chipIco('waves')} ${TAGS_BY_ID[state.sim.waveTag].label} surging</span>`);
   }
-  if (temp.capped) chipList.push(`<span class="chip hot">⚠ ALGORITHM SATURATED</span>`);
-  if (state.run.fbSlot) chipList.push(`<span class="chip warm">👴 FaceSpace ×${state.run.fbSlot.mult}</span>`);
+  if (temp.capped) chipList.push(`<span class="chip hot">${chipIco('bell-ringing')} ALGORITHM SATURATED</span>`);
+  if (state.run.fbSlot) chipList.push(`<span class="chip warm">${chipIco('broadcast')} FaceSpace ×${state.run.fbSlot.mult}</span>`);
   if (state.sim.comebackEndMs > t) {
-    chipList.push(`<span class="chip warm">💚 The algorithm missed you ×2</span>`);
+    chipList.push(`<span class="chip warm">${chipIco('arrow-counter-clockwise')} The algorithm missed you ×2</span>`);
   }
   let chips = chipList.slice(0, 3).join('');
   if (chipList.length > 3) chips += `<span class="chip">+${chipList.length - 3}</span>`;
@@ -192,13 +195,19 @@ export function update(state, now) {
   els.team.classList.toggle('hidden', !showTeam);
   if (showTeam) {
     const spin = ['…', '…', '…', ''][Math.floor(now / 500) % 4];
-    let team = `🤖 <b>Brayden</b> (Auto-Packer) — packing 2 orders/sec${spin}`;
-    if (lv >= VA_LEVELS.intern) team += `<br>🧢 <b>The Intern</b> — posting an ad every 5s. Morale: "content"${spin}`;
-    else team += `<br class="muted"><span class="muted">🔒 Lv ${VA_LEVELS.intern}: an intern appears</span>`;
-    if (lv >= VA_LEVELS.campaignmgr) team += `<br>📋 <b>Campaign Manager</b> — auto-launching at 60% power when you're idle${spin}`;
-    else if (lv >= VA_LEVELS.intern) team += `<br><span class="muted">🔒 Lv ${VA_LEVELS.campaignmgr}: a campaign manager appears</span>`;
-    if (lv >= VA_LEVELS.trendwatcher) team += `<br>📡 <b>Trend Watcher</b> — catching Viral Moments at 50% value${spin}`;
-    else if (lv >= VA_LEVELS.campaignmgr) team += `<br><span class="muted">🔒 Lv ${VA_LEVELS.trendwatcher}: a trend watcher appears</span>`;
-    if (els.teamList.innerHTML !== team) els.teamList.innerHTML = team;
+    const row = (art, name, blurb) => `<div class="va-row">${brandArt(art, 26, 'va-face')}<span><b>${name}</b> — ${blurb}</span></div>`;
+    const lockRow = (need, label) => `<div class="va-row locked-row">${icon('lock-simple', { size: 14 })}<span class="muted">Lv ${need}: ${label}</span></div>`;
+    let team = row('va-brayden', 'Brayden', `Auto-Packer, 2 orders/sec${spin}`);
+    team += lv >= VA_LEVELS.intern
+      ? row('va-intern', 'The Intern', `posting an ad every 5s. Morale: "content"${spin}`)
+      : lockRow(VA_LEVELS.intern, 'an intern appears');
+    if (lv >= VA_LEVELS.campaignmgr) team += row('va-manager', 'Campaign Manager', `auto-launching at 60% power when you're idle${spin}`);
+    else if (lv >= VA_LEVELS.intern) team += lockRow(VA_LEVELS.campaignmgr, 'a campaign manager appears');
+    if (lv >= VA_LEVELS.trendwatcher) team += row('va-watcher', 'Trend Watcher', `catching Viral Moments at 50% value${spin}`);
+    else if (lv >= VA_LEVELS.campaignmgr) team += lockRow(VA_LEVELS.trendwatcher, 'a trend watcher appears');
+    if (els.teamList.dataset.sig !== team) {
+      els.teamList.dataset.sig = team;
+      els.teamList.innerHTML = team;
+    }
   }
 }

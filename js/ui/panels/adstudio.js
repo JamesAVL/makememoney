@@ -14,8 +14,12 @@ import { markDirty } from '../render.js';
 import { confetti, goldRain, burst, SPR } from '../components/particles.js';
 import { shake, flash, slam } from '../components/celebrate.js';
 import { sReelTick, sHit, sFlop, sViral, sClick } from '../../audio/synth.js';
+import { icon } from '../icons.js';
+import { stampArt, brandArt } from '../art.js';
 
 const BAND_COLORS = { flop: '#5c6675', mid: '#98a2b4', hit: '#f97316', viral: '#f5b93e', mega: '#d946ef' };
+const OUTCOME_ICO = { flop: 'skull', mid: 'smiley-meh', hit: 'flame', viral: 'rocket', mega: 'volcano' };
+const oIco = (id, size = 12) => icon(OUTCOME_ICO[id], { size });
 
 let state_ = null;
 let els = {};
@@ -31,7 +35,7 @@ export function mount(root, state) {
   root.innerHTML = `
     <div class="panel" style="max-width:820px;margin:0 auto 14px">
       <div class="panel-title">
-        <span>🎬 ClipForge™ — AI Ad Generator <span class="chip">beta</span></span>
+        <span>${icon('film-slate', { size: 16 })} ClipForge™ — AI Ad Generator <span class="chip">beta</span></span>
         <span id="a-energy" style="display:flex;gap:5px;align-items:center"></span>
       </div>
 
@@ -48,13 +52,13 @@ export function mount(root, state) {
 
       <div style="display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap">
         <button class="btn btn-hype" id="a-spin" style="flex:1;min-width:130px;font-size:15px;padding:11px">
-          🎰 SPIN <span class="muted" style="font-size:11px">(1 ⚡)</span>
+          ${icon('dice-five', { size: 17 })} SPIN <span class="muted" style="font-size:11px">(1 ${icon('lightning', { size: 10 })})</span>
         </button>
-        <button class="btn" id="a-boost" title="Spend 30 Hype: +5% VIRAL odds">⚡ Boost <span id="a-boostcost" class="num">30 Hype</span></button>
+        <button class="btn" id="a-boost" title="Spend 30 Hype: +5% VIRAL odds">${icon('lightning', { size: 13 })} Boost <span id="a-boostcost" class="num">30 Hype</span></button>
       </div>
 
       <div id="a-pity" style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:11px;color:var(--text-lo)">
-        <span title="Algorithm Favor: +1.5% VIRAL per non-viral launch">🧠 Algorithm Favor</span>
+        <span title="Algorithm Favor: +1.5% VIRAL per non-viral launch">${icon('brain', { size: 13 })} Algorithm Favor</span>
         <div class="bar" style="flex:1;height:5px"><div class="bar-fill" id="a-pityfill" style="background:var(--hype)"></div></div>
         <span class="num" id="a-pityval">+0%</span>
       </div>
@@ -64,7 +68,7 @@ export function mount(root, state) {
       <div class="panel-title"><span>Publish to</span><span class="num muted" id="a-fee"></span></div>
       <div id="a-platforms" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px"></div>
       <button class="btn btn-primary" id="a-launch" style="width:100%;font-size:15px;padding:12px" disabled>
-        🚀 LAUNCH CAMPAIGN <span class="price num" id="a-launchfee"></span>
+        ${icon('rocket-launch', { size: 17 })} LAUNCH CAMPAIGN <span class="price num" id="a-launchfee"></span>
       </button>
       <div id="a-wheel" class="hidden" style="margin-top:12px"></div>
     </div>
@@ -120,7 +124,7 @@ export function mount(root, state) {
     b.className = 'btn';
     b.style.cssText = 'flex-direction:column;padding:9px 6px;gap:2px';
     b.dataset.pid = p.id;
-    b.innerHTML = `<span style="font-size:17px">${p.icon}</span><b style="font-size:12px">${p.name}</b><span class="muted a-pdesc" style="font-size:9.8px;font-weight:400"></span>`;
+    b.innerHTML = `<span style="line-height:0">${brandArt('pf-' + p.id, 30)}</span><b style="font-size:12px">${p.name}</b><span class="muted a-pdesc" style="font-size:9.8px;font-weight:400"></span>`;
     b.addEventListener('click', () => {
       if (b.disabled) return;
       selectedPlatform = p.id;
@@ -169,7 +173,12 @@ function updateReelLocks() {
   for (const reel of els.reels.children) {
     const key = reel.dataset.reel;
     const lockEl = reel.querySelector('.a-lock');
-    lockEl.textContent = locks[key] ? '🔒' : '';
+    const want = locks[key] ? 'y' : '';
+    if (lockEl.dataset.on !== want) {
+      lockEl.dataset.on = want;
+      lockEl.innerHTML = locks[key] ? icon('lock-simple', { size: 11 }) : '';
+      lockEl.style.color = 'var(--gold)';
+    }
     reel.style.borderColor = locks[key] ? 'var(--gold)' : '';
   }
 }
@@ -182,12 +191,12 @@ function reelDisplay(key, ad) {
   }
   if (key === 'productId') {
     const p = PRODUCTS_BY_ID[ad.productId];
-    return [`${p.icon} ${p.name}`, p.tags.map((t) => TAGS_BY_ID[t]?.label).join(' ')];
+    return [p.name, p.tags.map((t) => TAGS_BY_ID[t]?.label).join(' ')];
   }
   const tg = TAGS_BY_ID[ad.tagId];
   let sub = '';
-  if (state_.sim.waveTag === ad.tagId) sub = '🌊 SURGING NOW';
-  else if (state_.sim.warmTag === ad.tagId) sub = '📈 warm';
+  if (state_.sim.waveTag === ad.tagId) sub = 'SURGING NOW';
+  else if (state_.sim.warmTag === ad.tagId) sub = 'warm';
   return [tg.label, sub];
 }
 
@@ -203,7 +212,7 @@ function doSpin() {
   const reels = [...els.reels.children];
   const pools = {
     hookId: ownedHooks(state_).map((h) => `“${h.text.replace('{p}', '…')}”`),
-    productId: PRODUCTS.filter((p) => (state_.run.products[p.id] || 0) > 0).map((p) => `${p.icon} ${p.name}`),
+    productId: PRODUCTS.filter((p) => (state_.run.products[p.id] || 0) > 0).map((p) => p.name),
     tagId: Object.values(TAGS_BY_ID).map((t) => t.label),
   };
   reels.forEach((reel, i) => {
@@ -240,7 +249,7 @@ function doSpin() {
 
 function finishSpin(result) {
   spinning = false;
-  els.title.textContent = `🎞 “${result.title}”`;
+  els.title.textContent = `“${result.title}”`;
   refreshOdds();
   markDirty('adstudio');
 }
@@ -262,20 +271,20 @@ function refreshOdds() {
 
   const { bands, chaos, shifts } = computeOdds(state_, ad, boost);
   els.odds.innerHTML = bands
-    .map((b) => `<div style="width:${b.pct}%;background:${BAND_COLORS[b.id]};display:grid;place-items:center;font-size:10px;font-weight:700;color:#0b0e14;transition:width .35s" title="${b.label} ×${b.mult}">${b.pct >= 7 ? b.emoji : ''}</div>`)
+    .map((b) => `<div style="width:${b.pct}%;background:${BAND_COLORS[b.id]};display:grid;place-items:center;color:#0b0e14;transition:width .35s" title="${b.label} ×${b.mult}">${b.pct >= 7 ? oIco(b.id) : ''}</div>`)
     .join('');
   els.oddsLabels.innerHTML = bands
-    .map((b) => `<span>${b.emoji} ${b.pct.toFixed(1)}%</span>`)
+    .map((b) => `<span style="display:inline-flex;align-items:center;gap:3px"><span style="color:${BAND_COLORS[b.id]};line-height:0">${oIco(b.id, 11)}</span> ${b.pct.toFixed(1)}%</span>`)
     .join('');
 
   const parts = [];
-  if (shifts.wave) parts.push(`🌊 wave +${shifts.wave.toFixed(0)}%`);
-  if (shifts.warm) parts.push(`📈 warm +${shifts.warm.toFixed(0)}%`);
-  if (shifts.product) parts.push('🎯 tag match');
-  if (shifts.rarity) parts.push(`💎 rare hook +${shifts.rarity.toFixed(0)}%`);
-  if (shifts.boost) parts.push('⚡ boosted');
-  if (shifts.pity) parts.push(`🧠 favor +${shifts.pity.toFixed(1)}%`);
-  if (chaos) parts.push('🎲 total mismatch: 5% chaos jackpot');
+  if (shifts.wave) parts.push(`wave +${shifts.wave.toFixed(0)}%`);
+  if (shifts.warm) parts.push(`warm +${shifts.warm.toFixed(0)}%`);
+  if (shifts.product) parts.push('tag match');
+  if (shifts.rarity) parts.push(`rare hook +${shifts.rarity.toFixed(0)}%`);
+  if (shifts.boost) parts.push('boosted');
+  if (shifts.pity) parts.push(`favor +${shifts.pity.toFixed(1)}%`);
+  if (chaos) parts.push('total mismatch: 5% chaos jackpot');
   els.shifts.textContent = parts.join(' · ');
 }
 
@@ -305,7 +314,7 @@ function revealOutcome(result) {
   const totalSteps = 14 + targetIdx + Math.floor(Math.random() * 5) * 5;
   let step = 0;
   wheel.innerHTML = `<div style="display:flex;gap:6px;justify-content:center">${OUTCOMES
-    .map((o) => `<div class="a-band" data-o="${o.id}" style="flex:1;max-width:110px;text-align:center;padding:10px 4px;border-radius:10px;border:1px solid var(--border);background:var(--bg-raised);font-weight:700;font-size:12px;transition:all .1s">${o.emoji}<br>${o.label}</div>`)
+    .map((o) => `<div class="a-band" data-o="${o.id}" style="flex:1;max-width:110px;text-align:center;padding:10px 4px;border-radius:10px;border:1px solid var(--border);background:var(--bg-raised);font-weight:700;font-size:12px;transition:all .1s">${oIco(o.id, 16)}<br>${o.label}</div>`)
     .join('')}</div>`;
   const bandEls = [...wheel.querySelectorAll('.a-band')];
 
@@ -343,7 +352,7 @@ function finishReveal(result) {
   if (result.chaos) detail = `THE CHAOS ALGORITHM PROVIDES. ${detail}`;
 
   wheel.innerHTML = `<div style="text-align:center;padding:8px">
-    <div style="font-size:26px;font-weight:800">${o.emoji} ${o.label}</div>
+    <div class="stamp-in" style="line-height:0">${stampArt(o.id, 190)}</div>
     <div class="muted" style="font-size:12px">${detail}</div>
   </div>`;
   setTimeout(() => { wheel.classList.add('hidden'); wheel.innerHTML = ''; }, 2600);
@@ -357,13 +366,13 @@ function finishReveal(result) {
     sViral();
     flash();
     shake(4);
-    slam('🚀 GONE VIRAL', true);
+    slam('GONE VIRAL', true);
     confetti(150);
   } else if (o.id === 'mega') {
     sViral();
     flash();
     shake(6);
-    slam('🌋 MEGA-VIRAL', true);
+    slam('MEGA-VIRAL', true);
     confetti(200);
     goldRain(80);
   }
@@ -394,7 +403,7 @@ export function update(state, now) {
     else if (i === whole) fill = frac * 100;
     pips += `<div style="width:20px;height:12px;border-radius:4px;border:1px solid var(--border);overflow:hidden;background:var(--bg-raised)"><div style="width:${fill}%;height:100%;background:var(--hype);transition:width .3s"></div></div>`;
   }
-  pips += `<span class="muted num" style="font-size:10px">⚡ ${state.run.energy.toFixed(1)}/${pipsMax}</span>`;
+  pips += `<span class="muted num" style="font-size:10px;display:inline-flex;align-items:center;gap:2px">${icon('lightning', { size: 10 })} ${state.run.energy.toFixed(1)}/${pipsMax}</span>`;
   if (els.energy.innerHTML !== pips) els.energy.innerHTML = pips;
 
   els.spin.disabled = state.run.energy < 1 || spinning || revealing;
@@ -446,18 +455,17 @@ export function update(state, now) {
   const t = state.sim.timeMs;
   let rack = '';
   for (const c of state.run.campaigns) {
-    const o = OUTCOMES.find((x) => x.id === c.outcome);
     const remain = Math.max(0, c.endMs - t);
     const pct = (remain / 90000) * 100;
     rack += `<div class="card" style="padding:8px">
-      <div style="font-size:11px;font-weight:700">${o.emoji} ${o.label}</div>
+      <div style="line-height:0;margin:-2px 0 2px">${stampArt(c.outcome, 76)}</div>
       <div class="muted" style="font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${c.title}">${c.title}</div>
       <div class="bar" style="height:4px;margin-top:5px"><div class="bar-fill" style="width:${pct}%;background:${BAND_COLORS[c.outcome]}"></div></div>
     </div>`;
   }
   if (state.run.fbSlot) {
     rack += `<div class="card" style="padding:8px;border-color:rgba(56,189,248,.4)">
-      <div style="font-size:11px;font-weight:700">👴 FaceSpace ×${state.run.fbSlot.mult}</div>
+      <div style="font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px">${brandArt('pf-facespace', 15)} FaceSpace ×${state.run.fbSlot.mult}</div>
       <div class="muted" style="font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${state.run.fbSlot.title}</div>
       <div class="muted" style="font-size:9.5px;margin-top:4px">shared to 14 family groups — never decays</div>
     </div>`;

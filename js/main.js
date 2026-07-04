@@ -24,6 +24,7 @@ import { unlockAudio, sChaChing } from './audio/synth.js';
 import { applyTheme } from './ui/theme.js';
 import { initRipples } from './ui/components/ripple.js';
 import { toast } from './ui/components/toast.js';
+import { icon as phIcon } from './ui/icons.js';
 import { initDM, openInbox } from './ui/components/dm.js';
 import { isModalOpen } from './ui/components/modal.js';
 import { dailyStandup } from './core/actions.js';
@@ -116,7 +117,7 @@ function boot() {
     if (state.acct.level >= 3 && !state.ftue.tips.install) {
       state.ftue.tips.install = true;
       toast({
-        icon: '📲', name: 'HustleOS wants your home screen',
+        icon: phIcon('device-mobile', { size: 24 }), name: 'HustleOS wants your home screen',
         sub: 'Settings → Install. Zero cloud. Zero telemetry. Pure grind.',
         ms: 9000, onClick: () => promptInstall(),
       });
@@ -124,7 +125,7 @@ function boot() {
   });
   document.addEventListener('sh:installed', () => {
     requestPersistence();
-    toast({ icon: '📲', name: 'Installed.', sub: 'You are now vertically integrated.', tone: 'gold' });
+    toast({ icon: phIcon('device-mobile', { size: 24 }), name: 'Installed.', sub: 'You are now vertically integrated.', tone: 'gold' });
   });
 
   // --- Offline progress (computed before schedulers re-arm) ---
@@ -284,7 +285,7 @@ function boot() {
   if (standup && !standup.firstEver) {
     setTimeout(() => {
       toast({
-        icon: '🌅',
+        icon: phIcon('sun-horizon', { size: 24 }),
         name: 'Daily Standup',
         sub: standup.paused
           ? `Streak paused at ${standup.streak}. Real gurus take rest days. First ad today: guaranteed 🔥 HIT+.`

@@ -442,10 +442,10 @@ textarea:focus { border-color: var(--data) !important; outline: none; }
     0 2px 6px rgba(16, 24, 40, 0.18);
 }
 .p-glyph {
-  font-size: 23px;
-  line-height: 1;
-  filter: saturate(1.1) drop-shadow(0 2px 2px rgba(0, 0, 0, 0.35));
+  line-height: 0;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
 }
+.p-glyph svg { display: block; }
 .card.locked .p-tile { filter: grayscale(0.85); opacity: 0.7; }
 
 .p-ring {
@@ -662,3 +662,65 @@ textarea:focus { border-color: var(--data) !important; outline: none; }
   font-size: 15px;
   color: var(--text-lo);
 }
+
+/* --- Rendered-graphics pass: materials & art containers -------------------- */
+.btn {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, var(--btn-spec, 0.05)), rgba(255, 255, 255, 0) 55%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), inset 0 -1px 0 rgba(0, 0, 0, 0.22);
+}
+.btn:active:not(:disabled) { box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3); }
+.btn-primary, .btn-gold, .btn-hype { position: relative; overflow: hidden; }
+.btn-primary::after, .btn-gold::after, .btn-hype::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 60% 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, var(--btn-spec, 0.18)), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+:root[data-theme="light"] { --btn-spec: 0.32; }
+
+.pack-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+.pack-art { line-height: 0; margin-bottom: -2px; }
+.pack-art svg { display: block; }
+.pack-btn:active #lid { transform: translateY(2px); }
+.pack-btn #lid, .pack-btn #burst { transition: transform 0.1s, opacity 0.2s; }
+.pack-btn:not(:active) #burst { opacity: 0.55; }
+
+.medal-chip {
+  width: 30px; height: 30px; flex: none;
+  display: inline-grid; place-items: center;
+  border-radius: 9px;
+  background: linear-gradient(148deg, var(--bg-raised), var(--bg));
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  vertical-align: -9px;
+}
+.medal-chip.got {
+  background: linear-gradient(148deg, #f5b93e, #854d0e);
+  color: #fff7e6;
+  border-color: rgba(245, 185, 62, 0.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.p-tile.mini {
+  width: 30px; height: 30px;
+  border-radius: 9px;
+  display: inline-grid; place-items: center;
+  color: #f6f8fc;
+  vertical-align: -9px;
+}
+
+.va-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+.va-row .va-face { border-radius: 50%; flex: none; }
+.va-row.locked-row { color: var(--text-dim); }
+
+.brand-mark { display: inline-block; line-height: 0; vertical-align: -4px; margin-right: 6px; }
+
+.stamp-in { animation: stamp-slam 0.34s var(--spring) backwards; }
+@keyframes stamp-slam {
+  0% { transform: scale(2.1) rotate(6deg); opacity: 0; }
+  60% { transform: scale(0.94) rotate(-1deg); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.moment svg { display: block; }

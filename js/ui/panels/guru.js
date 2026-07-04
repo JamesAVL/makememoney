@@ -13,15 +13,35 @@ import { confetti } from '../components/particles.js';
 import { saveToStorage } from '../../core/save.js';
 import { markAllDirty } from '../render.js';
 import { switchTab } from './nav.js';
+import { icon } from '../icons.js';
+import { brandArt } from '../art.js';
 
 let state_ = null;
 let els = {};
+
+
+// Phosphor icons for data entries (data files keep legacy emoji fields).
+const NICHE_ICO = {
+  pet_empire: 'paw-print', wellness_grift: 'flower-lotus', kitchen_cult: 'knife',
+  sleep_complex: 'bed', sigma_lifestyle: 'detective', hydration_nation: 'drop',
+  quantum_dept: 'atom', old_money: 'crown', gadget_syndicate: 'plug',
+  cozy_hustle: 'armchair', gym_rats: 'barbell', that_girl: 'sparkle',
+};
+const GURU_ICO = {
+  rise_grind: 'alarm', mindset_10x: 'brain', timezone: 'globe-hemisphere-west',
+  sigma_supply: 'package', printer: 'printer', cult: 'eye',
+  second_yacht: 'sailboat', integrated: 'buildings', post_economic: 'mountains',
+};
+const PERK_ICO = {
+  pk_hypecap: 'trend-up', pk_hypedecay: 'hourglass-high', pk_click: 'target',
+  pk_energy: 'lightning', pk_offline: 'moon', pk_moments: 'broadcast',
+};
 
 export function mount(root, state) {
   state_ = state;
   root.innerHTML = `
     <div id="g-niche" class="panel hidden">
-      <div class="panel-title"><span>🎯 PICK YOUR NICHE — this run's identity</span></div>
+      <div class="panel-title"><span>${icon('target', { size: 16 })} PICK YOUR NICHE — this run's identity</span></div>
       <div class="muted" style="font-size:12px;margin-bottom:10px">
         +75% income on matching products · matching trends surge twice as often · one anti-tag at −25%.
       </div>
@@ -30,13 +50,13 @@ export function mount(root, state) {
     </div>
 
     <div class="panel" id="g-offer">
-      <div class="panel-title"><span>📬 Acquisition Inbox — Blandrock Capital</span></div>
+      <div class="panel-title"><span style="display:inline-flex;align-items:center;gap:7px">${brandArt('blandrock', 18)} Acquisition Inbox — Blandrock Capital</span></div>
       <div id="g-offerbody"></div>
     </div>
 
     <div class="panel">
       <div class="panel-title">
-        <span>🧘 Guru Grindset Tree</span>
+        <span>${icon('crown', { size: 16 })} Guru Grindset Tree</span>
         <span class="gold num" id="g-investors"></span>
       </div>
       <div class="muted" style="font-size:11.5px;margin-bottom:10px">
@@ -47,12 +67,12 @@ export function mount(root, state) {
     </div>
 
     <div class="panel">
-      <div class="panel-title"><span>🎖 Hustler Perks</span><span class="data-c num" id="g-pp"></span></div>
+      <div class="panel-title"><span>${icon('medal', { size: 16 })} Hustler Perks</span><span class="data-c num" id="g-pp"></span></div>
       <div class="card-grid" id="g-perks"></div>
     </div>
 
     <div class="panel">
-      <div class="panel-title"><span>📜 Exit history</span></div>
+      <div class="panel-title"><span>${icon('scroll', { size: 16 })} Exit history</span></div>
       <table class="mini-table" id="g-runlog"></table>
     </div>`;
 
@@ -246,7 +266,7 @@ function renderNichePicker(state) {
     card.className = 'card r-rare';
     card.style.cursor = 'pointer';
     card.innerHTML = `
-      <div class="card-title"><span style="font-size:20px">${n.icon}</span> ${n.name}</div>
+      <div class="card-title"><span class="p-tile mini" data-tag="${n.tag}">${icon(NICHE_ICO[n.id] || 'sparkle', { size: 17 })}</span> ${n.name}</div>
       <div class="card-sub">${n.blurb}</div>
       <div style="font-size:11px" class="muted">
         <span class="money">+75%</span> on <b>#${n.tag}</b> products ·
@@ -283,7 +303,7 @@ export function update(state, now) {
     wireSignature(state);
   }
 
-  els.investors.textContent = `👤 ${fmtInt(state.acct.investors)} unspent (+${(state.acct.investors * 4).toFixed(0)}%)`;
+  els.investors.innerHTML = `${icon('users-three', { size: 13 })} ${fmtInt(state.acct.investors)} unspent (+${(state.acct.investors * 4).toFixed(0)}%)`;
 
   // Guru tree
   let tree = '';
@@ -291,11 +311,11 @@ export function update(state, now) {
     const owned = state.acct.guru[n.id];
     const afford = state.acct.investors >= n.cost;
     tree += `<div class="card ${owned ? 'r-legendary' : ''}" data-guru="${n.id}">
-      <div class="card-title">${n.icon} ${n.name}</div>
+      <div class="card-title"><span class="p-tile mini" data-tag="guru">${icon(GURU_ICO[n.id] || 'crown', { size: 17 })}</span> ${n.name}</div>
       <div class="card-sub">${n.desc}<br><i style="opacity:.75">${n.flavor}</i></div>
       ${owned
         ? '<div class="gold" style="font-size:12px;font-weight:700">OWNED</div>'
-        : `<button class="btn g-buy" ${afford ? '' : 'disabled'} style="width:100%">👤 ${fmtInt(n.cost)} investors</button>`}
+        : `<button class="btn g-buy" ${afford ? '' : 'disabled'} style="width:100%">${icon('users-three', { size: 13 })} ${fmtInt(n.cost)} investors</button>`}
     </div>`;
   }
   if (els.tree.dataset.html !== tree) {
@@ -324,7 +344,7 @@ export function update(state, now) {
     const maxed = rank >= pk.maxRank;
     const cost = maxed ? 0 : pk.costs[rank];
     perks += `<div class="card" data-perk="${pk.id}">
-      <div class="card-title">${pk.icon} ${pk.name} <span class="chip">${rank}/${pk.maxRank}</span></div>
+      <div class="card-title"><span class="p-tile mini" data-tag="aesthetic">${icon(PERK_ICO[pk.id] || 'medal', { size: 17 })}</span> ${pk.name} <span class="chip">${rank}/${pk.maxRank}</span></div>
       <div class="card-sub">${pk.desc}</div>
       ${maxed
         ? '<div class="data-c" style="font-size:12px;font-weight:700">MAXED</div>'

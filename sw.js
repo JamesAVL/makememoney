@@ -10,6 +10,7 @@ const PRECACHE = [
   'index.html', 'manifest.webmanifest',
   'css/base.css', 'css/layout.css', 'css/components.css', 'css/effects.css',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png',
+  'js/ui/icons.js', 'js/ui/art.js',
 ];
 
 self.addEventListener('install', (e) => {

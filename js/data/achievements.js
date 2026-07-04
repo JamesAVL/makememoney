@@ -62,3 +62,18 @@ export const ACHIEVEMENTS = Object.freeze([
 export const ACHIEVEMENTS_BY_ID = Object.freeze(
   Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, a]))
 );
+
+// Phosphor icon per achievement (rendered inside a medal chip; the emoji
+// `icon` field above is legacy and no longer displayed in chrome).
+export const ACH_ICONS = Object.freeze({
+  first_sale: 'hand-coins', shipped_100: 'package', shipped_10k: 'list-checks', shipped_1m: 'sailboat',
+  cash_1k: 'coins', cash_100k: 'trend-up', cash_1m: 'wallet', cash_1b: 'sparkle', cash_1t: 'moon', cash_1e15: 'atom',
+  clicks_100: 'barbell', clicks_2500: 'heartbeat', crit_50: 'flame',
+  first_viral: 'rocket', viral_25: 'rocket-launch', mega_1: 'volcano', spins_100: 'film-slate',
+  flops_20: 'skull', pity_viral: 'brain', chaos_jackpot: 'dice-five', boost_10: 'lightning',
+  f_1k: 'eye', f_100k: 'certificate', f_1m: 'crown',
+  wave_1: 'waves', wave_20: 'trend-up', moment_10: 'sparkle', whale: 'fish', sigma: 'detective',
+  own_100_one: 'buildings', banana_500: 'knife', tier7: 'atom', tier12: 'microphone-stage', all_10: 'strategy',
+  lv10: 'medal', lv25: 'student', exit_1: 'handshake', exit_5: 'scroll', exit_10: 'mask-happy', guru_full: 'flower-lotus',
+  offline_8h: 'bed', checked_updates: 'arrow-counter-clockwise', creative_accounting: 'clipboard-text',
+});

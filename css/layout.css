@@ -176,14 +176,15 @@
   transition: background 0.15s, color 0.15s, transform 0.3s var(--spring);
 }
 .nav-btn:active:not(.locked) { transform: scale(0.93); transition-duration: 0.06s; }
-.nav-btn .ico { font-size: 19px; line-height: 1; filter: grayscale(0.4); transition: filter 0.15s; }
+.nav-btn .ico { line-height: 0; opacity: 0.72; transition: opacity 0.15s, color 0.15s; }
+.nav-btn .ico .ph { display: block; }
 .nav-btn:hover { background: var(--bg-raised); color: var(--text-hi); }
-.nav-btn:hover .ico { filter: none; }
+.nav-btn:hover .ico { opacity: 1; }
 .nav-btn.active {
   background: transparent;
   color: var(--text-hi);
 }
-.nav-btn.active .ico { filter: none; }
+.nav-btn.active .ico { opacity: 1; color: var(--money); }
 .nav-btn.locked { opacity: 0.45; }
 .nav-btn .badge-dot {
   position: absolute;

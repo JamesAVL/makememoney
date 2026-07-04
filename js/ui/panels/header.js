@@ -12,6 +12,8 @@ import { saveToStorage } from '../../core/save.js';
 import { applyTheme } from '../theme.js';
 import { openInbox, unreadStory } from '../components/dm.js';
 import { isModalOpen } from '../components/modal.js';
+import { icon } from '../icons.js';
+import { brandArt } from '../art.js';
 
 let els = {};
 let state_ = null;
@@ -27,7 +29,7 @@ export function mount(root, state) {
   state_ = state;
   root.innerHTML = `
     <div class="kpi-logo" id="logo" title="HustleOS™ — definitely checking for updates">
-      <span class="brand">HustleOS™</span>
+      <span class="brand"><span class="brand-mark">${brandArt('hustleos-mark', 20)}</span>HustleOS™</span>
       <span class="ver">v5.0.0 “Mentorship”</span>
     </div>
     <div class="kpi-cash">
@@ -35,11 +37,11 @@ export function mount(root, state) {
       <span class="rate-chip num" id="k-rate">+$0/sec</span>
     </div>
     <div class="kpi-stat" id="k-followers-wrap">
-      <span class="label">👁 Followers</span>
+      <span class="label">${icon('eye', { size: 13 })} Followers</span>
       <span class="val" id="k-followers">0</span>
     </div>
     <div class="kpi-stat kpi-hype">
-      <span class="label">⚡ Hype <span id="k-hypemult" class="hype-c num"></span></span>
+      <span class="label">${icon('lightning', { size: 13 })} Hype <span id="k-hypemult" class="hype-c num"></span></span>
       <div class="bar bar-hype" id="k-hypebar"><div class="bar-fill" id="k-hypefill"></div></div>
     </div>
     <div class="kpi-stat kpi-xp">
@@ -47,10 +49,10 @@ export function mount(root, state) {
       <div class="bar"><div class="bar-fill" id="k-xpfill" style="background:var(--data)"></div></div>
     </div>
     <div class="kpi-right">
-      <span class="kpi-invest num hidden" id="k-invest" title="Unspent investors: +4% income each">👤 0</span>
-      <button class="icon-btn" id="k-inbox" title="Mentorship inbox (i)">📩<span class="inbox-count hidden" id="k-unread"></span></button>
-      <button class="icon-btn" id="k-theme" title="Light/dark mode">🌙</button>
-      <button class="icon-btn" id="k-mute" title="Sound on/off">🔊</button>
+      <span class="kpi-invest num hidden" id="k-invest" title="Unspent investors: +4% income each">${icon('users-three', { size: 14 })} <span id="k-invest-n">0</span></span>
+      <button class="icon-btn" id="k-inbox" title="Mentorship inbox (i)">${icon('envelope-open', { size: 17 })}<span class="inbox-count hidden" id="k-unread"></span></button>
+      <button class="icon-btn" id="k-theme" title="Light/dark mode"></button>
+      <button class="icon-btn" id="k-mute" title="Sound on/off"></button>
       <div class="save-dot" id="k-save" title="Autosaved locally"></div>
     </div>`;
 
@@ -65,6 +67,7 @@ export function mount(root, state) {
     level: root.querySelector('#k-level'),
     xpfill: root.querySelector('#k-xpfill'),
     invest: root.querySelector('#k-invest'),
+    investN: root.querySelector('#k-invest-n'),
     mute: root.querySelector('#k-mute'),
     save: root.querySelector('#k-save'),
     unread: root.querySelector('#k-unread'),
@@ -83,7 +86,7 @@ export function mount(root, state) {
     state_.acct.stats.logoClicks++;
   });
   const themeBtn = root.querySelector('#k-theme');
-  const themeIcon = () => { themeBtn.textContent = state_.settings.theme === 'light' ? '☀️' : '🌙'; };
+  const themeIcon = () => { themeBtn.innerHTML = icon(state_.settings.theme === 'light' ? 'sun' : 'moon', { size: 17 }); };
   themeBtn.addEventListener('click', () => {
     state_.settings.theme = state_.settings.theme === 'light' ? 'dark' : 'light';
     applyTheme(state_.settings.theme);
@@ -91,13 +94,14 @@ export function mount(root, state) {
     saveToStorage(state_, Date.now());
   });
   themeIcon();
+  const muteIcon = () => { els.mute.innerHTML = icon(state_.settings.muted ? 'speaker-slash' : 'speaker-high', { size: 17 }); };
   els.mute.addEventListener('click', () => {
     state_.settings.muted = !state_.settings.muted;
     setMuted(state_.settings.muted);
-    els.mute.textContent = state_.settings.muted ? '🔇' : '🔊';
+    muteIcon();
     saveToStorage(state_, Date.now());
   });
-  els.mute.textContent = state_.settings.muted ? '🔇' : '🔊';
+  muteIcon();
 
   bus.on('saved', () => { saveFlashUntil = performance.now() + 900; });
 }
@@ -152,8 +156,8 @@ export function update(state, now) {
 
   const inv = state.acct.investors;
   els.invest.classList.toggle('hidden', !inv && !state.acct.exits);
-  const invStr = `👤 ${fmtInt(inv)}`;
-  if (els.invest.textContent !== invStr) els.invest.textContent = invStr;
+  const invStr = fmtInt(inv);
+  if (els.investN.textContent !== invStr) els.investN.textContent = invStr;
 
   els.save.classList.toggle('pulse', performance.now() < saveFlashUntil);
 }

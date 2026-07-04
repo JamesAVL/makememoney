@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+  <g class="a-shadow"><ellipse cx="44" cy="84" rx="20" ry="4.5" fill="#0b0e14" opacity="0.22"/></g>
+  <g class="a-body">
+    <rect x="34" y="14" width="20" height="9" rx="3" fill="#0b0e14" opacity="0.75"/>
+    <line x1="56" y1="16" x2="65" y2="7" stroke="#0b0e14" stroke-width="2.8" stroke-linecap="round" opacity="0.75"/>
+    <circle cx="66" cy="6.5" r="3.2" fill="#3ae68f"/>
+    <rect x="30" y="22" width="28" height="6" rx="3" fill="#0b0e14" opacity="0.6"/>
+    <path d="M30,31 h28 v42 a10,10 0 0 1 -10,10 h-8 a10,10 0 0 1 -10,-10 Z" fill="#f2e4c9"/>
+    <path d="M30,58 h28 v15 a10,10 0 0 1 -10,10 h-8 a10,10 0 0 1 -10,-10 Z" fill="var(--tile-b, #334155)"/>
+    <rect x="35" y="37" width="18" height="13" rx="4" fill="#0b0e14" opacity="0.85"/>
+    <circle cx="40.5" cy="43.5" r="1.8" fill="#3ae68f"/><circle cx="44.5" cy="43.5" r="1.8" fill="#3ae68f" opacity="0.65"/><circle cx="48.5" cy="43.5" r="1.8" fill="#3ae68f" opacity="0.35"/>
+    <path d="M58,32 a13,11 0 1 1 4,19 l-7,6 2,-8" fill="#0b0e14" opacity="0.85"/>
+    <path d="M64,38 h8 M64,43 h6" stroke="#3ae68f" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <g class="a-gloss"><rect x="33.5" y="33" width="4" height="38" rx="2" fill="#ffffff" opacity="0.5"/></g>
+</svg>

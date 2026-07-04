@@ -8,6 +8,17 @@ import { CHARACTERS, BEATS_BY_ID } from '../../data/story.js';
 import { ackStoryBeat, unreadStory } from '../../core/story.js';
 import { markAllDirty } from '../render.js';
 import { sToast } from '../../audio/synth.js';
+import { guruArt, brandArt } from '../art.js';
+
+// Chase's portrait mood follows the beat's celebration weight; Blandrock is
+// always the beige roundel.
+function avatarArt(beat, size) {
+  if (beat.from === 'blandrock') return brandArt('blandrock', size);
+  const mood = beat.celebrate === 'big' ? 'hyped'
+    : (beat.id === 'chase_mask_off' || beat.id === 'chase_epilogue' || beat.id === 'exit_intro') ? 'zen'
+      : 'grind';
+  return guruArt(mood, size);
+}
 
 let state_ = null;
 export function initDM(state) { state_ = state; }
@@ -33,7 +44,7 @@ export function openDM(beatId, { readonly = false } = {}) {
   const head = document.createElement('div');
   head.className = 'dm-from';
   head.innerHTML = `
-    <span class="dm-avatar" data-char="${from.id}">${beat.icon}</span>
+    <span class="dm-avatar" data-char="${from.id}">${avatarArt(beat, 40)}</span>
     <span class="dm-who"><b></b><span class="dm-handle"></span></span>`;
   head.querySelector('b').textContent = senderName(beat.from);
   head.querySelector('.dm-handle').textContent = from.handle;
@@ -105,7 +116,7 @@ export function openInbox() {
     const row = document.createElement('button');
     row.className = `inbox-row${unread ? ' unread' : ''}`;
     row.innerHTML = `
-      <span class="dm-avatar" data-char="${beat.from}">${beat.icon}</span>
+      <span class="dm-avatar" data-char="${beat.from}">${avatarArt(beat, 30)}</span>
       <span class="inbox-meta"><b></b><span class="muted"></span></span>
       ${unread ? '<span class="badge-dot" style="position:static"></span>' : ''}`;
     row.querySelector('b').textContent = beat.title;
@@ -129,7 +140,7 @@ export function deliverDM(beatId, toastFn) {
     return;
   }
   toastFn({
-    icon: '📩',
+    icon: avatarArt(beat, 24),
     name: `DM from ${senderName(beat.from)}`,
     sub: beat.title,
     tone: 'dm',

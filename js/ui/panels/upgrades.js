@@ -10,6 +10,7 @@ import { fmtCash } from '../fmt.js';
 import { sBuy } from '../../audio/synth.js';
 import { toast } from '../components/toast.js';
 import { markDirty } from '../render.js';
+import { icon as phIcon } from '../icons.js';
 
 const CATS = [
   ['products', '📦 Product Ops'],
@@ -27,7 +28,7 @@ export function mount(root, state) {
   state_ = state;
   root.innerHTML = `
     <div class="panel">
-      <div class="panel-title"><span>⬆️ Conversion Tools — invest in yourself (and fake countdown timers)</span></div>
+      <div class="panel-title"><span>${phIcon('arrow-fat-lines-up', { size: 16 })} Conversion Tools — invest in yourself (and fake countdown timers)</span></div>
       <div id="u-sections"></div>
     </div>
     <div class="panel">
@@ -89,7 +90,7 @@ export function update(state, now) {
       card.querySelector('.u-buy').addEventListener('click', () => {
         if (buyUpgrade(state_, u.id)) {
           sBuy();
-          toast({ icon: '⬆️', name: u.name, sub: effectLabel(u), tone: '' });
+          toast({ icon: phIcon('arrow-fat-lines-up', { size: 24 }), name: u.name, sub: effectLabel(u), tone: '' });
           markDirty('upgrades');
           markDirty('products');
         }

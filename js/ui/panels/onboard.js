@@ -9,27 +9,31 @@ import { deliverDM } from '../components/dm.js';
 import { sUnlock, sToast, sLevelUp, sWave, sHit } from '../../audio/synth.js';
 import { TAGS_BY_ID } from '../../data/ads.js';
 import { PRODUCTS_BY_ID } from '../../data/products.js';
+import { ACH_ICONS } from '../../data/achievements.js';
 import { LEVEL_UNLOCKS } from '../../data/prestige.js';
 import { BEATS_BY_ID } from '../../data/story.js';
 import { injectReviews } from './feed.js';
+import { icon } from '../icons.js';
+import { productArt, brandArt } from '../art.js';
 
 let state_ = null;
 
 // What each gating beat reveals, for the post-ACK celebration toast.
 const UNLOCK_CELEBRATIONS = {
-  products: { icon: '📦', name: 'Products', sub: 'Buy stuff to sell stuff. The stuff is bad. The margins are beautiful.' },
-  adstudio: { icon: '🎬', name: 'Ad Studio', sub: 'Spin up a viral video. What could go wrong (statistically, a lot).', big: true },
-  upgrades: { icon: '⬆️', name: 'Upgrades', sub: 'Conversion Tools. Fake countdown timers. Real money.' },
-  postad: { icon: '📣', name: 'POST AD', sub: 'Followers are pre-customers. Start posting.' },
-  instaglam: { icon: '📸', name: 'Instaglam', sub: 'Pays followers, not cash. Post pretty, harvest later.' },
-  hype: { icon: '🔥', name: 'Hype', sub: 'Performed enthusiasm, monetized. It decays when you rest.' },
-  trends: { icon: '📈', name: 'Trends', sub: 'The algorithm has weather. Sell the weather.' },
-  facespace: { icon: '👴', name: 'FaceSpace', sub: 'One eternal ad slot. Nana trusts you.' },
-  flexes: { icon: '🏆', name: 'Flexes', sub: 'Each one pays +1% income. Flexing is fiscal policy.' },
-  levels: { icon: '⬆️', name: 'Hustler Levels', sub: 'The grind now has a number. It only goes up.' },
-  standup: { icon: '🌅', name: 'Daily Standup', sub: 'Show up daily: streak bonus + a guaranteed HIT.' },
-  exit: { icon: '🧘', name: 'Guru Mode', sub: 'Blandrock Capital has entered the chat.', big: true },
+  products: { ico: 'package', name: 'Products', sub: 'Buy stuff to sell stuff. The stuff is bad. The margins are beautiful.' },
+  adstudio: { ico: 'film-slate', name: 'Ad Studio', sub: 'Spin up a viral video. What could go wrong (statistically, a lot).', big: true },
+  upgrades: { ico: 'arrow-fat-lines-up', name: 'Upgrades', sub: 'Conversion Tools. Fake countdown timers. Real money.' },
+  postad: { ico: 'megaphone', name: 'POST AD', sub: 'Followers are pre-customers. Start posting.' },
+  instaglam: { art: 'pf-instaglam', name: 'Instaglam', sub: 'Pays followers, not cash. Post pretty, harvest later.' },
+  hype: { ico: 'lightning', name: 'Hype', sub: 'Performed enthusiasm, monetized. It decays when you rest.' },
+  trends: { ico: 'chart-line-up', name: 'Trends', sub: 'The algorithm has weather. Sell the weather.' },
+  facespace: { art: 'pf-facespace', name: 'FaceSpace', sub: 'One eternal ad slot. Nana trusts you.' },
+  flexes: { ico: 'trophy', name: 'Flexes', sub: 'Each one pays +1% income. Flexing is fiscal policy.' },
+  levels: { ico: 'arrow-fat-lines-up', name: 'Hustler Levels', sub: 'The grind now has a number. It only goes up.' },
+  standup: { ico: 'sun-horizon', name: 'Daily Standup', sub: 'Show up daily: streak bonus + a guaranteed HIT.' },
+  exit: { ico: 'crown', name: 'Guru Mode', sub: 'Blandrock Capital has entered the chat.', big: true },
 };
+const celebIcon = (c) => (c.art ? brandArt(c.art, 24) : icon(c.ico, { size: 24 }));
 
 // Noise rule 4: $1K/$100K parties demoted to plain toasts; big three halved.
 const CASH_CONFETTI = [
@@ -53,12 +57,12 @@ export function init(state) {
     if (!beat) return;
     if (beat.unlocks && UNLOCK_CELEBRATIONS[beat.unlocks]) {
       const c = UNLOCK_CELEBRATIONS[beat.unlocks];
-      celebrateUnlock({ ...c, big: beat.celebrate === 'big' });
+      celebrateUnlock({ icon: celebIcon(c), name: c.name, sub: c.sub, big: beat.celebrate === 'big' });
       sUnlock();
     }
     if (id === 'flexes_intro') {
       const n = Object.keys(state_.acct.achievements).length;
-      if (n) toast({ icon: '🏆', name: `${n} Flexes already banked`, sub: 'Chase kept receipts. +1% income each.', tone: 'gold' });
+      if (n) toast({ icon: icon('trophy', { size: 24 }), name: `${n} Flexes already banked`, sub: 'Chase kept receipts. +1% income each.', tone: 'gold' });
     }
     if (id === 'lesson_review') injectReviews(3);
   });
@@ -67,7 +71,7 @@ export function init(state) {
   bus.on('achievement', (a) => {
     if (!state_.story.unlocks.flexes) return;
     sToast();
-    toast({ icon: a.icon, name: a.name, sub: `${a.desc} (+1% income)`, tone: 'gold' });
+    toast({ icon: icon(ACH_ICONS[a.id] || 'medal', { size: 24 }), name: a.name, sub: `${a.desc} (+1% income)`, tone: 'gold' });
   });
 
   // Noise rule 6: level toasts only after levels_intro, and only for levels
@@ -78,7 +82,7 @@ export function init(state) {
     if (!unlock && level % 5 !== 0) return;
     sLevelUp();
     toast({
-      icon: '🆙',
+      icon: icon('arrow-fat-lines-up', { size: 24 }),
       name: `Hustler Level ${level}`,
       sub: unlock ? `UNLOCKED: ${unlock.label} — ${unlock.desc}` : '+1% income, +1 perk point',
       tone: 'data',
@@ -91,7 +95,7 @@ export function init(state) {
     const p = PRODUCTS_BY_ID[id];
     celebrate(() => {
       sUnlock();
-      toast({ icon: p.icon, name: `New product: ${p.name}`, sub: p.desc });
+      toast({ icon: productArt(p.id, 30), name: `New product: ${p.name}`, sub: p.desc });
     });
   });
 
@@ -99,7 +103,7 @@ export function init(state) {
   bus.on('milestone', ({ id, count, hits }) => {
     if (hits > 2) return;
     const p = PRODUCTS_BY_ID[id];
-    toast({ icon: p.icon, name: `${p.name} ×2`, sub: `${count} owned — income doubled. “${p.milestoneName}”` });
+    toast({ icon: productArt(p.id, 30), name: `${p.name} ×2`, sub: `${count} owned — income doubled. “${p.milestoneName}”` });
     sHit();
   });
 
@@ -109,7 +113,7 @@ export function init(state) {
   });
   bus.on('wave:end', ({ ridden }) => {
     removeWaveBanner();
-    if (ridden) toast({ icon: '🏄', name: 'Surfed it.', sub: '+20 Hype. The algorithm nods approvingly.' });
+    if (ridden) toast({ icon: icon('waves', { size: 24 }), name: 'Surfed it.', sub: '+20 Hype. The algorithm nods approvingly.' });
   });
 
   bus.on('upgrade', () => sToast());
@@ -146,7 +150,7 @@ function showWaveBanner(tag, endMs) {
   waveBanner.className = 'banner';
   waveBanner.style.position = 'relative';
   waveBanner.innerHTML = `
-    <span style="font-size:19px">🌊</span>
+    <span style="line-height:0;color:var(--data)">${icon('waves', { size: 19 })}</span>
     <span><b>${label} IS SURGING</b> — matching products ×3, matching ads +12% odds</span>
     <span class="num muted b-count" style="font-size:11px"></span>
     <div class="countdown" style="width:100%"></div>`;

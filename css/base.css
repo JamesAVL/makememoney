@@ -305,3 +305,7 @@ html.standalone body::before {
 h1, h2, h3, h4, .kpi-logo .brand, .panel-title, .tier-slam, .pack-btn, .card .card-title {
   font-family: var(--font-display);
 }
+
+/* --- Vendored icon system (Phosphor duotone, currentColor) --- */
+.ph { display: inline-block; vertical-align: -0.125em; flex: none; }
+.t-icon .ph { display: block; }

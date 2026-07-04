@@ -8,12 +8,11 @@ import { slam, flash, shake } from '../components/celebrate.js';
 import { toast } from '../components/toast.js';
 import { confetti, goldRain } from '../components/particles.js';
 import { sViral, sHit } from '../../audio/synth.js';
+import { brandArt } from '../art.js';
 
 let state_ = null;
 let root_ = null;
 let floater = null;
-
-const EMOJI = ['🔥', '📈', '💸', '⭐', '🛒'];
 
 export function mount(root, state) {
   state_ = state;
@@ -59,7 +58,7 @@ function spawn() {
   floater.className = 'moment';
   floater.style.left = `${r.left + 40 + Math.random() * Math.max(60, r.width - 140)}px`;
   floater.style.top = `${r.top + 50 + Math.random() * Math.max(60, r.height - 190)}px`;
-  floater.innerHTML = `${EMOJI[Math.floor(Math.random() * EMOJI.length)]}<span class="m-label">TRENDING</span>`;
+  floater.innerHTML = `${brandArt('moment-coin', 52)}<span class="m-label">TRENDING</span>`;
   floater.title = 'Something is trending. Click it before it stops.';
   floater.addEventListener('click', () => {
     clickMoment(state_);

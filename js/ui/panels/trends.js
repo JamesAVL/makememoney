@@ -5,13 +5,14 @@ import { TREND_TAGS, TAGS_BY_ID } from '../../data/ads.js';
 import { PRODUCTS } from '../../data/products.js';
 import { NICHES_BY_ID } from '../../data/niches.js';
 import { fmtDur } from '../fmt.js';
+import { icon } from '../icons.js';
 
 let els = {};
 
 export function mount(root, state) {
   root.innerHTML = `
     <div class="panel">
-      <div class="panel-title"><span>📈 Trend Forecast Desk</span></div>
+      <div class="panel-title"><span>${icon('chart-line-up', { size: 16 })} Trend Forecast Desk</span></div>
       <div id="tr-status" style="font-size:15px;font-weight:700;margin-bottom:4px"></div>
       <div id="tr-sub" class="muted" style="font-size:12px"></div>
     </div>

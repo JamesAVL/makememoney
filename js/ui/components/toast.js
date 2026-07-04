@@ -6,6 +6,7 @@ const queue = [];
 let visible = 0;
 const MAX_VISIBLE = 1;
 
+// `icon` accepts markup (SVG string from icons.js/art.js) or an emoji string.
 export function toast({ icon = '🏆', name, sub = '', tone = '', ms = 4000, onClick = null }) {
   queue.push({ icon, name, sub, tone, ms, onClick });
   drain();

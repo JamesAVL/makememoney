@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+  <g class="a-shadow"><ellipse cx="48" cy="84" rx="20" ry="4.5" fill="#0b0e14" opacity="0.22"/></g>
+  <g class="a-body">
+    <rect x="38" y="8" width="20" height="10" rx="3" fill="#0b0e14" opacity="0.75"/>
+    <rect x="34" y="17" width="28" height="6" rx="3" fill="#0b0e14" opacity="0.6"/>
+    <path d="M34,26 h28 v46 a10,10 0 0 1 -10,10 h-8 a10,10 0 0 1 -10,-10 Z" fill="#f2e4c9"/>
+    <path d="M34,54 h28 v18 a10,10 0 0 1 -10,10 h-8 a10,10 0 0 1 -10,-10 Z" fill="var(--tile-b, #075985)"/>
+    <path d="M34,54 h28 v3.5 q-14,4 -28,0 Z" fill="#ffffff" opacity="0.35"/>
+    <rect x="38" y="32" width="20" height="13" rx="5" fill="#0b0e14" opacity="0.82"/>
+    <rect x="42" y="37" width="12" height="3.2" rx="1.6" fill="#f4536e"/>
+    <rect x="42" y="37" width="12" height="3.2" rx="1.6" fill="#f4536e" opacity="0.5"/>
+  </g>
+  <g class="a-gloss"><rect x="37.5" y="28" width="4" height="42" rx="2" fill="#ffffff" opacity="0.5"/></g>
+</svg>
